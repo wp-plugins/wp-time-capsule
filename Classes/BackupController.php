@@ -39,16 +39,17 @@ class WPTC_BackupController
         $this->output = $output ? $output : WPTC_Extension_Manager::construct()->get_output();
     }
 
-    public function backup_path($path, $dropbox_path = null, $always_include = null)
+    public function backup_path($path, $content_flag, $always_include = null)
     {
 		if (!$this->config->get_option('in_progress')) {
-			////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----returning not getting in_progress------- \n",FILE_APPEND);
+			//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----returning not getting in_progress------- \n",FILE_APPEND);
             return;
         }
-
-        if (!$dropbox_path) {
-            $dropbox_path = get_sanitized_home_path();
-        }
+        
+        
+//        if (!$dropbox_path) {
+            $dropbox_path = get_tcsanitized_home_path();
+//        }
 
         $file_list = WPTC_Factory::get('fileList');
 
@@ -62,24 +63,61 @@ class WPTC_BackupController
         $this->processed_file_count = $processed_files->get_processed_files_count();
 
         $last_percent = 0;
-
+file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called------- \n",FILE_APPEND);
         if (file_exists($path)) {
             $source = realpath($path);
-            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD);
-			$total_files = iterator_count($files);
+            
+			$Mdir  = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
+			$Mfile = new RecursiveIteratorIterator($Mdir, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
+                        $total_files = iterator_count($Mfile);
+                        if(!$content_flag)
+                        {
+                             $contDir = new RecursiveDirectoryIterator(realpath(WP_CONTENT_DIR), RecursiveDirectoryIterator::SKIP_DOTS);
+                             $contfiles = new RecursiveIteratorIterator($contDir, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
+                             $TFiles[0] = $contfiles;
+                             $TFiles[1] = $Mfile;
+                             $total_files = $total_files+iterator_count($contfiles);
+                        }
+                        else
+                        {
+                            $TFiles[0]=$Mfile;
+                            
+                        }
+                         global $wpdb;
+                        //Getting files from iterator and insert into database
+                    if (!$this->config->get_option('getfileslist')) {
+                        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----set files------- \n",FILE_APPEND);
+                            $this->iteratorIntoDb($TFiles);
+                    }  
+                    
+                    $Qfiles=$wpdb->get_results("SELECT * FROM ".$wpdb->prefix."wptc_current_process WHERE status='Q' ORDER BY file_path DESC");
+//                    if(!count($Qfiles)>0)
+//                    {
+//                        
+//                    }
+//                    ob_start();
+//                    echo "<pre>";
+//                    foreach($Qfiles as $filess){
+//                    print_r($filess->id);
+//                    }
+//           file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',  ob_get_clean(),FILE_APPEND); 
+            //$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD);
+                        
 			$ignored_files_count = $this->config->get_option('ignored_files_count');
 			$current_file = $this->replace_slashes(WP_PLUGIN_DIR) . DIRECTORY_SEPARATOR .TC_PLUGIN_NAME;			//current plugin's file path
 			//$ignored_files_count = 0;
-			//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----total files are------ ".var_export($total_files,true)."\n",FILE_APPEND);
+//			file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----total files are------ ".$total_files."\n",FILE_APPEND);
 			$this->config->set_option('total_file_count', $total_files);
 			$thisLoopCOunt = 0;
-            foreach ($files as $file_info) {
-				
+                        
+                        
+                        
+                            foreach ($Qfiles as $file_info) {
+				$fid=$file_info->id;
 				$current_processed_files = $uploaded_files = array();
 				
-				//////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----loop started-----\n",FILE_APPEND);
-                $file = $file_info->getPathname();
-
+//				file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----loop -----".$file_info->file_path,FILE_APPEND);
+                $file = $file_info->file_path;
                 if (time() > $next_check) {
                     $this->config->die_if_stopped();
 					
@@ -88,7 +126,7 @@ class WPTC_BackupController
                     $msg = null;
 
                     if ($this->processed_file_count > 0) {
-                        $msg = _n(__('Processed 1 file.', 'wpbtd'), sprintf(__('Processed %s files.', 'wpbtd'), $this->processed_file_count), $this->processed_file_count, 'wpbtd');
+                        $msg = _n(__('Processed 1 file.', 'wptc'), sprintf(__('Processed %s files.', 'wptc'), $this->processed_file_count), $this->processed_file_count, 'wptc');
                     }
 
                     if ($total_files > 0) {
@@ -99,7 +137,7 @@ class WPTC_BackupController
                             }
 
                             if ($percent_done > $last_percent) {
-                                $msg .= ' ' . sprintf(__('Approximately %s%% complete.', 'wpbtd'), $percent_done);
+                                $msg .= ' ' . sprintf(__('Approximately %s%% complete.', 'wptc'), $percent_done);
                                 $last_percent = $percent_done;
                             }
                         }
@@ -114,11 +152,16 @@ class WPTC_BackupController
                 }
 
                 if ($file != $always_include && $file_list->is_excluded($file)) {
+//                    file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----ignored is_excluded-----\n".$file,FILE_APPEND);
+                    $this->writeStatusofFile($fid,'S');
 					$ignored_files_count += 1;
+                                        
                     continue;
                 }
 
                 if ($file_list->in_ignore_list($file)) {
+//                    file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----ignored in ignore list-----".$file,FILE_APPEND);
+                    $this->writeStatusofFile($fid,'S');
 					$ignored_files_count += 1;
                     continue;
                 }
@@ -133,7 +176,9 @@ class WPTC_BackupController
 					if(strpos($file, $current_file) !== false)
 					{
 						$ignored_files_count += 1;
+//                                                file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----ignored is_excluded-----\n".$file,FILE_APPEND);
 						//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----skipping plugin file------- ".var_export($current_file,true)."\n",FILE_APPEND);
+                                                $this->writeStatusofFile($fid,'S');
 						continue;
 					}
                     $processed_file  = $processed_files->get_file($file);
@@ -144,33 +189,38 @@ class WPTC_BackupController
 							//update a count ; for progress information
 							//$ignored_files_count += $this->config->get_option('ignored_files_count');
 							
-							//write_in_monitor_console($file, '--contiuing by mtime-');
+							//write_in_tcmonitor_console($file, '--contiuing by mtime-');
 							////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----contiuing by mtime------- ".var_export($file,true)."\n",FILE_APPEND);
 						}
-						$ignored_files_count += 1;
+						//$ignored_files_count += 1;
+//                                                file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----contiuing by mtime------- ".var_export($file,true)."\n",FILE_APPEND);
+                                                $this->writeStatusofFile($fid,'S');
 						continue;
                     }
 					
 					//the following if statement is only for taking the files count
                     if (dirname($file) == $this->config->get_backup_dir() && $file != $always_include) {
+//                     file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----backup path------- ".var_export($file,true)."\n",FILE_APPEND);
 						$ignored_files_count += 1;
+                                                $this->writeStatusofFile($fid,'S');
                         continue;
                     }
 					$this->config->set_option('ignored_files_count', $ignored_files_count);
 					$this->config->set_option('supposed_total_files_count', ($total_files - $ignored_files_count));
 					
 					$forced_break = false;
-					//write_in_monitor_console(print_r($file), 'uploading this file');
+					//write_in_tcmonitor_console(print_r($file), 'uploading this file');
 					//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----plugin_direc------- ".var_export(substr(dirname(__FILE__), 0, (strlen(dirname(__FILE__)) - 8)),true)."\n",FILE_APPEND);
 					//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----uploading this file ------ ".var_export($file,true)."\n",FILE_APPEND);
 					$dropboxOutput = $this->output->out($dropbox_path, $file, $processed_file);
-					//write_in_monitor_console((array)$dropboxOutput, '----dropboxOutput----');
+					//write_in_tcmonitor_console((array)$dropboxOutput, '----dropboxOutput----');
 					if(!empty($dropboxOutput)){
-						//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----dropboxOutput------- ".var_export('there is some output',true)."\n",FILE_APPEND);
-						//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----dropboxOutput------- ".var_export((array)$dropboxOutput,true)."\n",FILE_APPEND);
+//						file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----file added------- ".$file."\n",FILE_APPEND);
+//						file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----dropboxOutput------- ".var_export((array)$dropboxOutput,true)."\n",FILE_APPEND);
+                                                $this->writeStatusofFile($fid,'P');
 					}
 					else{
-						//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----dropboxOutput------- ".var_export('error in dropbox',true)."\n",FILE_APPEND);
+//						file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----some error in Drop------- ",FILE_APPEND);
 					}
                     if ($dropboxOutput) {
 						$thisLoopCOunt++;
@@ -226,9 +276,12 @@ class WPTC_BackupController
 					
                 }
 				else{
+                                        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----not a file------ ".$file,FILE_APPEND);
 					$ignored_files_count += 1;
+                                        $this->writeStatusofFile($fid,'S');
 				}
             }
+                       
 			$this->config->set_option('ignored_files_count', $ignored_files_count);
         }
     }
@@ -245,37 +298,62 @@ class WPTC_BackupController
 
         $this->config->set_time_limit();
         $this->config->set_memory_limit();
-
+        
         try {
 
             if (!$this->dropbox->is_authorized()) {
-                $logger->log(__('Your Dropbox account is not authorized yet.', 'wpbtd'));
+                $logger->log(__('Your Dropbox account is not authorized yet.', 'wptc'));
 
                 return;
             }
-
+            $start=  microtime(true);
             //Create the SQL backups
             $dbStatus = $dbBackup->get_status();
 			if ($dbStatus == WPTC_DatabaseBackup::NOT_STARTED) {
                 if ($dbStatus == WPTC_DatabaseBackup::IN_PROGRESS) {
-                    $logger->log(__('Resuming SQL backup.', 'wpbtd'));
+                    $logger->log(__('Resuming SQL backup.', 'wptc'));
                 } else {
-                    $logger->log(__('Starting SQL backup.', 'wpbtd'));
+                    $logger->log(__('Starting SQL backup.', 'wptc'));
                 }
 
                 $dbBackup->execute();
 
-                $logger->log(__('SQL backup complete. Starting file backup.', 'wpbtd'));
+                $logger->log(__('SQL backup complete. Starting file backup.', 'wptc'));
             }
-
+            $timetaken=  microtime(true)-$start;
+            file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php','time Taken for db'.$timetaken,FILE_APPEND);
+              $start=  microtime(true);
             if ($this->output->start()) {
-
+                $home_path=get_tcsanitized_home_path();
+                $content_path=WP_CONTENT_DIR;
+                if($content_path!="")
+                {
+                    $Check =  str_replace($home_path,'MaTcHeD_cOnTeNt', $content_path);
+                    $MPos = strpos($Check,'MaTcHeD_cOnTeNt');
+                    if($MPos !== false)
+                    {
+                        $inside=true;
+                    }
+                    else 
+                    {
+                        $inside=false;
+                    }
+                }
+                //Finding the Content Dir inside the rootpath or not
+                
+                 
+                
+                
                 //Backup the content dir first
-                $this->backup_path(WP_CONTENT_DIR, dirname(WP_CONTENT_DIR), $dbBackup->get_file());
-				//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----exiting files loop------- \n",FILE_APPEND);
+                
+                
+                
+                //$this->backup_path(WP_CONTENT_DIR, dirname(WP_CONTENT_DIR), $dbBackup->get_file());
+                
+				//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',WP_CONTENT_DIR,FILE_APPEND);
 				
 				//Now backup the blog root
-                $this->backup_path(get_sanitized_home_path());
+                $this->backup_path(get_tcsanitized_home_path(),$inside,$dbBackup->get_file());
 				
                 //End any output extensions
                 $this->output->end();
@@ -283,14 +361,16 @@ class WPTC_BackupController
                 //Record the number of files processed to make the progress meter more accurate
                 $this->config->set_option('total_file_count', $this->processed_file_count);
             }
+            $timetaken=  microtime(true)-$start;
+            file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php','time Taken for file'.$timetaken,FILE_APPEND);
 			//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----going to go inside complete------ \n",FILE_APPEND);
             $manager->complete();
 			
             //Update log file with stats
-            $logger->log(__('Backup complete.', 'wpbtd'));
-            $logger->log(sprintf(__('A total of %s files were processed.', 'wpbtd'), $this->processed_file_count));
+            $logger->log(__('Backup complete.', 'wptc'));
+            $logger->log(sprintf(__('A total of %s files were processed.', 'wptc'), $this->processed_file_count));
             $logger->log(sprintf(
-                __('A total of %dMB of memory was used to complete this backup.', 'wpbtd'),
+                __('A total of %dMB of memory was used to complete this backup.', 'wptc'),
                 (memory_get_usage(true) / 1048576)
             ));
 
@@ -302,7 +382,7 @@ class WPTC_BackupController
             }
 			
 			//this is the log file upload; am cutting the log file upload to dropbox
-            //$this->output->set_root($root)->out(get_sanitized_home_path(), $logger->get_log_file());				//manual
+            //$this->output->set_root($root)->out(get_tcsanitized_home_path(), $logger->get_log_file());				//manual
 			
 			$dbBackup->clean_up();		//to clear the db-sql file
 			
@@ -314,9 +394,9 @@ class WPTC_BackupController
 
         } catch (Exception $e) {
             if ($e->getMessage() == 'Unauthorized') {
-                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wpbtd'));
+                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wptc'));
             } else {
-                $logger->log(__('A fatal error occured: ', 'wpbtd') . $e->getMessage());
+                $logger->log(__('A fatal error occured: ', 'wptc') . $e->getMessage());
             }
 
             $manager->failure();
@@ -332,9 +412,9 @@ class WPTC_BackupController
         }
 
         if (!$dropbox_path) {
-            $dropbox_path = get_sanitized_home_path();
+            $dropbox_path = get_tcsanitized_home_path();
         }
-
+        
        
         $current_processed_files = $uploaded_files = array();
 
@@ -440,7 +520,7 @@ class WPTC_BackupController
         try {
 
             if (!$this->dropbox->is_authorized()) {
-                $logger->log(__('Your Dropbox account is not authorized yet.', 'wpbtd'));
+                $logger->log(__('Your Dropbox account is not authorized yet.', 'wptc'));
 
                 return;
             }
@@ -461,10 +541,10 @@ class WPTC_BackupController
             //$manager->complete();
 
             //Update log file with stats
-            $logger->log(__('Restore complete.', 'wpbtd'));
-            $logger->log(sprintf(__('A total of %s files were processed.', 'wpbtd'), $this->processed_file_count));
+            $logger->log(__('Restore complete.', 'wptc'));
+            $logger->log(sprintf(__('A total of %s files were processed.', 'wptc'), $this->processed_file_count));
             $logger->log(sprintf(
-                __('A total of %dMB of memory was used to complete this backup.', 'wpbtd'),
+                __('A total of %dMB of memory was used to complete this backup.', 'wptc'),
                 (memory_get_usage(true) / 1048576)
             ));
 
@@ -475,7 +555,7 @@ class WPTC_BackupController
                 $root = true;
             }
 
-            //$this->output->set_root($root)->out(get_sanitized_home_path(), $logger->get_log_file());				//manual
+            //$this->output->set_root($root)->out(get_tcsanitized_home_path(), $logger->get_log_file());				//manual
 			if( !$this->config->get_option('chunked') )			//if chunked download is not going ; or if bridge copy is not going do this completion step.
 			{
 				$this->config
@@ -496,9 +576,9 @@ class WPTC_BackupController
 			}
         } catch (Exception $e) {
             if ($e->getMessage() == 'Unauthorized') {
-                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wpbtd'));
+                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wptc'));
             } else {
-                $logger->log(__('A fatal error occured: ', 'wpbtd') . $e->getMessage());
+                $logger->log(__('A fatal error occured: ', 'wptc') . $e->getMessage());
             }
 
             $manager->failure();
@@ -713,14 +793,14 @@ class WPTC_BackupController
     public function backup_now()
     {
 		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----backup_now------- \n",FILE_APPEND);
-		$old_cookie = getCookie('backupID');
+		$old_cookie = getTcCookie('backupID');
 		//delete any previous cookie
-		deleteCookie();
+		deleteTcCookie();
 		
 		//prepare the backupID and then execute
-		setCookieNow("backupID");
+		setTcCookieNow("backupID");
 		if (defined('WPTC_TEST_MODE')) {
-            execute_drobox_backup();
+            execute_tcdropbox_backup();
         } else {
 			wp_schedule_single_event(time(), 'execute_instant_drobox_backup');
         }
@@ -734,7 +814,7 @@ class WPTC_BackupController
 		if(!empty($files_to_restore))
 		{
 			//prepare the backupID and then execute
-			setCookieNow("backupID");
+			setTcCookieNow("backupID");
 			
 			//deleting the temp folder first;then create it;
 			$this_temp_backup_folder = WP_CONTENT_DIR.'/tCapsule';
@@ -873,9 +953,9 @@ class WPTC_BackupController
 			//and then do the adding of files to the DB
 			$processed_files->add_files_for_restoring($total_files_to_restore);
 			
-			execute_drobox_restore();					//since we are using a manual ajax function
+			execute_tcdrobox_restore();					//since we are using a manual ajax function
 		   /*  if (defined('WPTC_TEST_MODE')) {
-				execute_drobox_restore();
+				execute_tcdrobox_restore();
 			} else {
 				wp_schedule_single_event(time(), 'execute_instant_dropbox_restore');
 			} */
@@ -963,7 +1043,7 @@ class WPTC_BackupController
 		global $wp_filesystem;
 		$dump_dir = WPTC_Factory::get('config')->get_backup_dir();
 		$dump_dir_parent = substr($dump_dir, 0, -8);
-        $error_message  = sprintf(__("WordPress Time Capsule requires write access to '%s', please ensure it exists and has write permissions.", 'wpbtd'), $dump_dir);
+        $error_message  = sprintf(__("WordPress Time Capsule requires write access to '%s', please ensure it exists and has write permissions.", 'wptc'), $dump_dir);
 		
 		if ( !$wp_filesystem->is_dir($dump_dir_parent) ) {
 			if ( !$wp_filesystem->mkdir($dump_dir_parent, FS_CHMOD_DIR) )
@@ -992,5 +1072,75 @@ class WPTC_BackupController
         } */
 		self::create_silence_file();
 		return true;
+    }
+    public function unlink_CurrentAccAndBackups(){
+        
+        //delete backup history and data
+        global $wpdb;
+
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_processed_dbtables`");
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_processed_files`");
+        $this->config->set_option('in_progress', 0);
+        $this->config->set_option('is_running', 0);
+    }
+    public function writeStatusofFile($id,$status){
+        global $wpdb;
+        $in=$wpdb->query("UPDATE `".$wpdb->prefix."wptc_current_process` 
+	SET status = '$status'
+	WHERE id = $id");
+    }
+    public function iteratorIntoDb($TFiles)
+    {
+        global $wpdb;
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_current_process`");
+                            $FilesArray=array();
+                            foreach($TFiles as $Ofiles)
+                            {
+                                foreach($Ofiles as $currentfile)
+                                {
+                                    $FilesArray[]=$currentfile->getPathname();
+                                }
+                            }
+
+                            $mcount=count($FilesArray)%100;
+                            if($mcount>0)
+                            {
+                                $lastloop=1;
+                            }
+                            else
+                            {
+                                $lastloop=0;
+                            }
+                            $itercount=count($FilesArray);
+                            $numofinsert=round($itercount/100);
+                            $point=0;
+                            for($inloop=0;$inloop < $numofinsert+$lastloop;$inloop++)
+                            {
+                                if($point < $itercount){
+                                    $qry="";
+                                    for($deep=0;$deep<100;$deep++)
+                                    {
+                                        if($FilesArray[$point]){
+                                            if($deep==0){
+                                                $qry.="('";
+                                            }
+                                            else{
+                                                $qry.=",('";
+                                            }
+                                            $qry.=addslashes($FilesArray[$point])."', 'Q')";
+                                            $point++;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+                                    }
+                                $wpdb->query("insert into ".$wpdb->prefix."wptc_current_process (file_path, status) values $qry");
+                                }
+                                else {
+                                    continue;
+                                }
+                            }
+                            $this->config->set_option('getfileslist',1);
     }
 }

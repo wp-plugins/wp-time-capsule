@@ -79,7 +79,7 @@ class WPTC_Processed_Copiedfiles extends WPTC_Processed_Base
 
     public function update_file($file, $upload_id = null, $offset, $backupID = 0, $chunked = null)
     {
-		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----getCookie---- ".var_export(getCookie('backupID'),true)."\n",FILE_APPEND);
+		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----getTcCookie---- ".var_export(getTcCookie('backupID'),true)."\n",FILE_APPEND);
 		//am adding few conditions to insert the new file with new backup id if the file is modified				//manual
 		
 		$may_be_stored_file_obj = $this->get_file($file);
@@ -127,7 +127,7 @@ class WPTC_Processed_Copiedfiles extends WPTC_Processed_Base
 					'file' => $file_dets['file_name'],
 					'revision_id' => $revision,
 					'offset' => null,
-					'backupID' => getCookie('backupID'),
+					'backupID' => getTcCookie('backupID'),
 					'uploaded_file_size' => $file_dets['file_size'],
 					'download_status' => ($file_dets['file_size'] > 4024000) ? 'done' : 'notDone',				//am adding an extra condition for chunked download
 				));
@@ -154,7 +154,7 @@ class WPTC_Processed_Copiedfiles extends WPTC_Processed_Base
                 'file' => $file['file'],
                 'uploadid' => null,
                 'offset' => null,
-				'backupID' => getCookie('backupID'),
+				'backupID' => getTcCookie('backupID'),
 				'revision_number' => $file['revision_number'],
 				'revision_id' => $file['revision_id'],
 				'mtime_during_upload' => $file['mtime_during_upload'],

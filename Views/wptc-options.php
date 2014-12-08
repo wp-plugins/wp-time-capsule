@@ -21,7 +21,7 @@
 try {
     if ($errors = get_option('wptc-init-errors')) {
         delete_option('wptc-init-errors');
-        throw new Exception(__('WordPress Time Capsule failed to initialize due to these database errors.', 'wpbtd') . '<br /><br />' . $errors);
+        throw new Exception(__('WordPress Time Capsule failed to initialize due to these database errors.', 'wptc') . '<br /><br />' . $errors);
     }
 
     $validation_errors = null;
@@ -39,7 +39,7 @@ try {
         check_admin_referer('wordpress_time_capsule_options_save');
 
         if (isset($_POST['dropbox_location']) && preg_match('/[^A-Za-z0-9-_.\/]/', $_POST['dropbox_location'])) {
-            add_settings_error('wptc_options', 'invalid_subfolder', __('The sub directory must only contain alphanumeric characters.', 'wpbtd'), 'error');
+            add_settings_error('wptc_options', 'invalid_subfolder', __('The sub directory must only contain alphanumeric characters.', 'wptc'), 'error');
 
             $dropbox_location = $_POST['dropbox_location'];
             $store_in_subfolder = true;
@@ -55,7 +55,9 @@ try {
         }
     } elseif (array_key_exists('unlink', $_POST)) {
         check_admin_referer('wordpress_time_capsule_options_save');
+        $backup->unlink_CurrentAccAndBackups();
         $dropbox->unlink_account()->init();
+      
     } elseif (array_key_exists('clear_history', $_POST)) {
         check_admin_referer('wordpress_time_capsule_options_save');
         $config->clear_history();
@@ -74,6 +76,7 @@ try {
 
     $time = date('H:i', $unixtime);
     $day = date('D', $unixtime);
+    add_thickbox();
     ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $uri ?>/JQueryFileTree/jqueryFileTree.css"/>
 <script src="<?php echo $uri ?>/JQueryFileTree/jqueryFileTree.js" type="text/javascript" language="javascript"></script>
@@ -96,18 +99,23 @@ try {
      * Display the Dropbox authorize url, hide the authorize button and then show the continue button.
      * @param url
      */
+    function yes_change_acc(){
+            document.getElementById('unlink').click();
+    }
+    function no_change(){
+             tb_remove();
+    }
     function dropbox_authorize(url) {
         window.open(url);
         document.getElementById('continue').style.display = "block";
         document.getElementById('authorize').style.display = "none";
     }
+    function ChangeAccount(){
+        dialog_for_changeAccount();
+    }
 </script>
     <div class="wrap" id="wptc">
-	<form id="backup_to_dropbox_options" name="backup_to_dropbox_options"
--          action="admin.php?page=wp-time-capsule" method="post">
-<h2><?php _e('Settings', 'wpbtd'); ?></h2>
-
-    <?php settings_errors(); ?>
+	<form id="backup_to_dropbox_options" name="backup_to_dropbox_options" action="admin.php?page=wp-time-capsule" method="post">
 
     <?php if ($dropbox->is_authorized()) {
         $account_info = $dropbox->get_account_info();
@@ -115,27 +123,35 @@ try {
         $quota = round($account_info->quota_info->quota / 1073741824, 1);
 		$used = $quota - $used;				//simple fix for dropbox quota display
     ?>
+            <div style="width:100%">
+                <h2 style="width: 6%; display: inline-block;"><?php _e('Settings', 'wptc'); ?></h2>
+                <div style="width: 43%; display: inline-block;">
+                    <a style="width: 74%;" href="https://wptimecapsule.uservoice.com/" target="_blank">Got an Idea?</a>
+                </div>
+            </div>
+    <?php settings_errors(); ?>
+
     <table class="form-table">
         <tbody>
 		<tr valign="top">
-            <th scope="row"><label ><?php _e("Dropbox Account", 'wpbtd'); ?></label>
+            <th scope="row"><label ><?php _e("Dropbox Account", 'wptc'); ?></label>
             </th>
             <td>
                 <div>
 					<?php echo
 							$account_info->email;
 					?>
-					<a class="change_dbox_user_tc" onclick="document.getElementById('unlink').click()" style="margin-left: 5px;">Change</a>
+                    <a class="change_dbox_user_tc" onclick="ChangeAccount()" style="margin-left: 5px;">Change</a>
 				</div>
 				<p class="description">
 					<?php echo $used . 'GB of ' . $quota . 'GB used'; ?>
 				</p>
 				<div class="dbox_quota"> <span style="width:<?php echo round(($used / $quota) * 100, 0);?>%"> </span> </div>
-				<input type="submit" style="display:none" id="unlink" name="unlink" class="bump button-secondary" value="<?php _e('Unlink Account', 'wpbtd'); ?>">
+				<input type="submit" style="display:none" id="unlink" name="unlink" class="bump button-secondary" value="<?php _e('Unlink Account', 'wptc'); ?>">
             </td>
         </tr>
         <tr valign="top">
-            <th scope="row"><label for="revision_limit"><?php _e("Keep File revisions for", 'wpbtd'); ?></label>
+            <th scope="row"><label for="revision_limit"><?php _e("Keep File revisions for", 'wptc'); ?></label>
             </th>
             <td>
                 <select name="revision_limit" id="revision_limit">
@@ -148,7 +164,7 @@ try {
         </tr>
         <tr valign="top">
             <th scope="row"> <label>
-			<?php _e("Backups before updating", 'wpbtd'); ?> </label>
+			<?php _e("Backups before updating", 'wptc'); ?> </label>
             </th>
             <td>
 				<fieldset>
@@ -182,7 +198,7 @@ try {
     <!--[if !IE | gt IE 7]><!-->
     <!--<![endif]-->
     <p class="submit">
-        <input type="submit" id="wptc_save_changes" name="wptc_save_changes" class="button-primary" value="<?php _e('Save Changes', 'wpbtd'); ?>">
+        <input type="submit" id="wptc_save_changes" name="wptc_save_changes" class="button-primary" value="<?php _e('Save Changes', 'wptc'); ?>">
     </p>
         <?php wp_nonce_field('wordpress_time_capsule_options_save'); ?>
     </form>
@@ -191,19 +207,21 @@ try {
     } else {
         ?>
 		
-		<div class="pu_title"><?php _e('Welcome to WPTimeCapsule', 'wpbtd'); ?></div>
+		<div class="pu_title"><?php _e('Welcome to WPTimeCapsule', 'wptc'); ?></div>
 		<div class="wcard clearfix">
 	    <div class="l1"><?php _e('Once you connect your Dropbox account, the backups that
-	    you create will be stored in the assigned folder in your account.', 'wpbtd'); ?></div>
+	    you create will be stored in the assigned folder in your account.', 'wptc'); ?></div>
 		<form id="backup_to_dropbox_continue" name="backup_to_dropbox_continue" method="post">
-			<input type="button" name="authorize" id="authorize" class="btn_pri" style="margin: 20px 59px; width: 330px; text-align: center;" value="<?php _e('Connect my Dropbox account', 'wpbtd'); ?>" onclick="dropbox_authorize('<?php echo $dropbox->get_authorize_url() ?>')"/>
-			<input type="submit" name="continue" id="continue" class="btn_pri" style="margin: 0 95px 20px; width: 250px; text-align: center; display: none;" value="<?php _e('Continue', 'wpbtd'); ?>" />
+			<input type="button" name="authorize" id="authorize" class="btn_pri" style="margin: 20px 59px; width: 330px; text-align: center;" value="<?php _e('Connect my Dropbox account', 'wptc'); ?>" onclick="dropbox_authorize('<?php echo $dropbox->get_authorize_url() ?>')"/>
+			<input type="submit" name="continue" id="continue" class="btn_pri" style="margin: 0 95px 20px; width: 250px; text-align: center; display: none;" value="<?php _e('Continue', 'wptc'); ?>" />
 		</form>
 		</div>
 
         <?php if (array_key_exists('continue', $_POST) && !$dropbox->is_authorized()): ?>
             <?php $dropbox->unlink_account()->init(); ?>
-            <p style="color: red"><?php _e('There was an error authorizing the plugin with your Dropbox account. Please try again.', 'wpbtd'); ?></p>
+                <div style="width: 100%">
+                    <p style="width: 40%; color: red; margin-left: 30%; text-align: center; padding: 1%; border-radius: 40px; background: none repeat scroll 0% 0% rgb(255, 255, 255); box-shadow: 0px 1px 3px rgb(0, 0, 0); font-weight: bolder;"><?php _e('There was an error authorizing the plugin with your Dropbox account. Please try again.', 'wptc'); ?></p>
+                </div>
         <?php endif; ?>
 		
         <?php
@@ -211,12 +229,14 @@ try {
     }
 } catch (Exception $e) {
     echo '<h3>Error</h3>';
-    echo '<p>' . __('There was a fatal error loading WordPress Time Capsule. Please fix the problems listed and reload the page.', 'wpbtd') . '</h3>';
-    echo '<p>' . __('If the problem persists please re-install WordPress Time Capsule.', 'wpbtd') . '</h3>';
+    echo '<p>' . __('There was a fatal error loading WordPress Time Capsule. Please fix the problems listed and reload the page.', 'wptc') . '</h3>';
+    echo '<p>' . __('If the problem persists please re-install WordPress Time Capsule.', 'wptc') . '</h3>';
     echo '<p><strong>' . __('Error message:') . '</strong> ' . $e->getMessage() . '</p>';
 
     if ($dropbox)
         $dropbox->unlink_account();
 }
 ?>
+<div id="dialog_content_id" style="display:none;"> <p> This is my hidden content! It will appear in ThickBox when the link is clicked. </p></div>
+<a style="display:none" href="#TB_inline?width=600&height=550&inlineId=dialog_content_id" class="thickbox">View my inline content!</a>	
 </div>

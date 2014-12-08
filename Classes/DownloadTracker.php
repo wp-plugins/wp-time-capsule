@@ -34,7 +34,7 @@ class WPTC_DownloadTracker
         $this->processed_files->update_file($file, $upload_id, $offset);
 
         WPTC_Factory::get('logger')->log(sprintf(
-            __("Downloaded %sMB of %sMB", 'wpbtd'),
+            __("Downloaded %sMB of %sMB", 'wptc'),
             round($offset / 1048576, 1),
             round(filesize($file) / 1048576, 1)
         ));

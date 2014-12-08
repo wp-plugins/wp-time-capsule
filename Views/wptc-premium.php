@@ -21,11 +21,11 @@
 $manager = WPTC_Factory::get('extension-manager');
 
 if (isset($_REQUEST['error'])) {
-    add_settings_error('error', 'wptc_premium_error', sprintf(__('There was an error with your payment, please contact %s to resolve.', 'wpbtd'), '<a href="mailto:michael.dewildt@gmail.com">Mikey</a>'), 'error');
+    add_settings_error('error', 'wptc_premium_error', sprintf(__('There was an error with your payment, please contact %s to resolve.', 'wptc'), '<a href="mailto:michael.dewildt@gmail.com">Mikey</a>'), 'error');
 }
 
 if (isset($_REQUEST['title'])) {
-    add_settings_error('general', 'wptc_premium_success', sprintf(__('You have succesfully purchased %s.', 'wpbtd'), "<strong>{$_REQUEST['title']}</strong>"), 'updated');
+    add_settings_error('general', 'wptc_premium_success', sprintf(__('You have succesfully purchased %s.', 'wptc'), "<strong>{$_REQUEST['title']}</strong>"), 'updated');
 }
 
 if (isset($_POST['name'])) {
@@ -34,7 +34,7 @@ if (isset($_POST['name'])) {
         $slug = $manager->get_menu_slug($ext);
         $title = $ext->get_menu();
 
-        add_settings_error('general', 'wptc_premium_success', __('Installation successful. Please configure the extension from its menu item.', 'wpbtd'), 'updated');
+        add_settings_error('general', 'wptc_premium_success', __('Installation successful. Please configure the extension from its menu item.', 'wptc'), 'updated');
 
         ?><script type='text/javascript'>
             jQuery(document).ready(function ($) {
@@ -78,7 +78,7 @@ function wptc_products($manager, $type, $extensions)
             <?php if (is_int($extension['expiry']) && ($manager->is_installed($extension['name']) || in_array($extension['type'], array('multi', 'bundle')))): ?>
                 <span class="product-box__tick">&#10004;</span>
                 <?php if ($type == 'single'): ?>
-                    <span class="product-box__message"><?php _e('Installed and up-to-date', 'wpbtd') ?></span>
+                    <span class="product-box__message"><?php _e('Installed and up-to-date', 'wptc') ?></span>
                 <?php endif; ?>
             <?php else: ?>
                 <div class="product-box__button">
@@ -94,7 +94,7 @@ function wptc_products($manager, $type, $extensions)
             <?php if ($extension['expiry'] == 'expired' && $extension['type'] == 'single'): ?>
                 <div class="product-box__alert"><?php _e('Your annual updates have expired. Please make a new purchase to renew.') ?></div>
             <?php elseif (is_int($extension['expiry'])): ?>
-                <div class="product-box__alert"><?php echo __('Expires on', 'wpbtd') . ' ' . date_i18n(get_option('date_format'), $extension['expiry']) ?></div>
+                <div class="product-box__alert"><?php echo __('Expires on', 'wptc') . ' ' . date_i18n(get_option('date_format'), $extension['expiry']) ?></div>
             <?php endif; ?>
         </div>
         <?php
@@ -108,23 +108,23 @@ function wptc_products($manager, $type, $extensions)
 </script>
 <div class="wrap premium" id="wptc">
     <div class="icon32"><img width="36px" height="36px"
-                                 src="<?php echo $uri ?>/Images/WordPressBackupToDropbox_64.png"
-                                 alt="WordPress Backup to Dropbox Logo"></div>
-    <h2><?php _e('WordPress Backup to Dropbox', 'wpbtd'); ?></h2>
-    <p class="description"><?php printf(__('Version %s', 'wpbtd'), BACKUP_TO_DROPBOX_VERSION) ?></p>
+                                 src="<?php echo $uri ?>/Images/WordPressTimeCapsule_64.png"
+                                 alt="WordPress TimeCapsule"></div>
+    <h2><?php _e('WordPress Backup to Dropbox', 'wptc'); ?></h2>
+    <p class="description"><?php printf(__('Version %s', 'wptc'), WPTC_VERSION) ?></p>
 
     <?php settings_errors(); ?>
 
-    <h3><?php _e('Premium Extensions', 'wpbtd'); ?></h3>
+    <h3><?php _e('Premium Extensions', 'wptc'); ?></h3>
     <div>
         <p>
-            <?php _e('Welcome to Premium Extensions. Please choose an extension below to enhance WordPress Backup to Dropbox.', 'wpbtd'); ?>
-            <?php _e('Installing a premium extension is easy:', 'wpbtd'); ?>
+            <?php _e('Welcome to Premium Extensions. Please choose an extension below to enhance WordPress Backup to Dropbox.', 'wptc'); ?>
+            <?php _e('Installing a premium extension is easy:', 'wptc'); ?>
         </p>
         <ol class="instructions">
-            <li><?php _e('Click Buy Now and pay using PayPal.', 'wpbtd'); ?></li>
-            <li><?php _e('Click Install Now to download and install the extension.', 'wpbtd'); ?></li>
-            <li><?php _e("That's it, options for your extension will be available in the menu on the left.", 'wpbtd'); ?></li>
+            <li><?php _e('Click Buy Now and pay using PayPal.', 'wptc'); ?></li>
+            <li><?php _e('Click Install Now to download and install the extension.', 'wptc'); ?></li>
+            <li><?php _e("That's it, options for your extension will be available in the menu on the left.", 'wptc'); ?></li>
             <li><?php _e('If you manage many websites, consider the multiple site options.'); ?></li>
         </ol>
         <a class="paypal" href="#" onclick="javascript:window.open('https://www.paypal.com/au/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=400, height=350');">
@@ -145,7 +145,7 @@ function wptc_products($manager, $type, $extensions)
             <?php wptc_products($manager, array('single', 'bundle'), $extensions); ?>
             <p class="note_paragraph">
                 <strong><?php _e('Please Note:') ?></strong>&nbsp;
-                <?php echo sprintf(__('Each payment includes updates and support on a single website for one year.', 'wpbtd')) ?>
+                <?php echo sprintf(__('Each payment includes updates and support on a single website for one year.', 'wptc')) ?>
             </p>
         </div>
 
@@ -155,7 +155,7 @@ function wptc_products($manager, $type, $extensions)
                     These plans are perfect for web developers and people who manage multiple websites
                     because they allow you to install all extensions on the sites that you register.
                     Each plan includes updates and support for one year and you can update your limit at any time.
-                ', 'wpbtd')); ?>
+                ', 'wptc')); ?>
             </p>
             <?php wptc_products($manager, array('multi'), $extensions); ?>
         </div>

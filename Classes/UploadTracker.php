@@ -36,7 +36,7 @@ class WPTC_UploadTracker
         $this_processed_file = $this->processed_files->update_file($file, $upload_id, $offset);
 
         WPTC_Factory::get('logger')->log(sprintf(
-            __("Uploaded %sMB of %sMB", 'wpbtd'),
+            __("Uploaded %sMB of %sMB", 'wptc'),
             round($offset / 1048576, 1),
             round(filesize($file) / 1048576, 1)
         ));
@@ -57,7 +57,7 @@ class WPTC_UploadTracker
         $this->processed_restored_files->update_file($file, $upload_id, $offset);
 
 		WPTC_Factory::get('logger')->log(sprintf(
-            __("Downloaded %sMB ", 'wpbtd'),
+            __("Downloaded %sMB ", 'wptc'),
             round($offset / 1048576, 1)
         ));
     }

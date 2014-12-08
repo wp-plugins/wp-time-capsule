@@ -87,7 +87,7 @@ class WPTC_Extension_Manager
             $response = wp_remote_get("{$this->get_url(true)}/products?" . http_build_query($params));
 
             if (is_wp_error($response)) {
-                throw new Exception(__('There was an error getting the list of premium extensions', 'wpbtd'));
+                throw new Exception(__('There was an error getting the list of premium extensions', 'wptc'));
             }
 
             $this->extensionsCache = json_decode($response['body'], true);
@@ -113,7 +113,7 @@ class WPTC_Extension_Manager
             'apikey' => self::API_KEY,
             'name' => $name,
             'site' => get_site_url(),
-            'version' => BACKUP_TO_DROPBOX_VERSION,
+            'version' => WPTC_VERSION,
         );
 
         $download_file = download_url("{$this->get_url(true)}/download?" . http_build_query($params));
@@ -121,12 +121,12 @@ class WPTC_Extension_Manager
         if (is_wp_error($download_file)) {
             $errorMsg = strtolower($download_file->get_error_message());
             if ($errorMsg == 'Forbidden') {
-                $errorMsg = __('access is deined, this could be because your payment has expired.', 'wpbtd');
+                $errorMsg = __('access is deined, this could be because your payment has expired.', 'wptc');
             } elseif (!$errorMsg) {
-                $errorMsg = __('you have exceeded your download limit for this extension on this site.', 'wpbtd');
+                $errorMsg = __('you have exceeded your download limit for this extension on this site.', 'wptc');
             }
 
-            throw new Exception(__('There was an error downloading your premium extension because', 'wpbtd') . " $errorMsg");
+            throw new Exception(__('There was an error downloading your premium extension because', 'wptc') . " $errorMsg");
         }
 
         $result = unzip_file($download_file, EXTENSIONS_DIR);
@@ -135,10 +135,10 @@ class WPTC_Extension_Manager
             $errorMsg = strtolower($result->get_error_message());
 
             if (in_array($errorCode, array('copy_failed', 'incompatible_archive'))) {
-                $errorMsg = sprintf(__("'%s' is not writeable.", 'wpbtd'), EXTENSIONS_DIR);
+                $errorMsg = sprintf(__("'%s' is not writeable.", 'wptc'), EXTENSIONS_DIR);
             }
 
-            throw new Exception(__('There was an error installing your premium extension because', 'wpbtd') . " $errorMsg");
+            throw new Exception(__('There was an error installing your premium extension because', 'wptc') . " $errorMsg");
         }
 
         unlink($download_file);

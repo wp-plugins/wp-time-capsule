@@ -41,7 +41,7 @@ try {
                 foreach ($files as $file) {
                     if ($file != '.' && $file != '..' && file_exists($_POST['dir'] . $file) && is_dir($_POST['dir'] . $file)) {
 
-                        if (!is_readable($_POST['dir']) || $_POST['dir'] == dirname(get_sanitized_home_path()) && !strstr($file, basename(get_sanitized_home_path()))) {
+                        if (!is_readable($_POST['dir']) || $_POST['dir'] == dirname(get_tcsanitized_home_path()) && !strstr($file, basename(get_tcsanitized_home_path()))) {
                             continue;
                         }
 
@@ -64,7 +64,7 @@ try {
 
                     if ($file != '.' && $file != '..' && file_exists($_POST['dir'] . $file) && !is_dir($_POST['dir'] . $file)) {
 
-                        if ($_POST['dir'] == dirname(get_sanitized_home_path()) && !strstr($file, basename(get_sanitized_home_path()))) {
+                        if ($_POST['dir'] == dirname(get_tcsanitized_home_path()) && !strstr($file, basename(get_tcsanitized_home_path()))) {
                             continue;
                         }
 

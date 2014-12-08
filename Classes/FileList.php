@@ -143,7 +143,7 @@ class WPTC_FileList
             return true;
         }
 
-        if ($dir == get_sanitized_home_path()) {
+        if ($dir == get_tcsanitized_home_path()) {
             return false;
         }
 

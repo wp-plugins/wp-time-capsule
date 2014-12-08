@@ -85,12 +85,12 @@ class WPTC_DatabaseBackup
                 }
 
                 if ($count > 0) {
-                    WPTC_Factory::get('logger')->log(sprintf(__("Resuming table '%s' at row %s.", 'wpbtd'), $tableName, $count));
+                    WPTC_Factory::get('logger')->log(sprintf(__("Resuming table '%s' at row %s.", 'wptc'), $tableName, $count));
                 }
 
                 $this->backup_database_table($tableName, $count);
 
-                WPTC_Factory::get('logger')->log(sprintf(__("Processed table '%s'.", 'wpbtd'), $tableName));
+                WPTC_Factory::get('logger')->log(sprintf(__("Processed table '%s'.", 'wptc'), $tableName));
             }
         }
     }
@@ -126,7 +126,7 @@ class WPTC_DatabaseBackup
 
         if (!is_writable($dump_location)) {
 			//$result = WPTC_BackupController::create_dump_dir();
-			$msg = sprintf(__("A database backup cannot be created because WordPress does not have write access to '%s', please ensure this directory has write access.", 'wpbtd'), $dump_location);
+			$msg = sprintf(__("A database backup cannot be created because WordPress does not have write access to '%s', please ensure this directory has write access.", 'wptc'), $dump_location);
 			WPTC_Factory::get('logger')->log($msg);
 
             return false;
@@ -144,7 +144,7 @@ class WPTC_DatabaseBackup
         $blog_time = strtotime(current_time('mysql'));
 
         $this->write_to_temp("-- WordPress Backup to Dropbox SQL Dump\n");
-        $this->write_to_temp("-- Version " . BACKUP_TO_DROPBOX_VERSION . "\n");
+        $this->write_to_temp("-- Version " . WPTC_VERSION . "\n");
         $this->write_to_temp("-- http://wptc.com\n");
         $this->write_to_temp("-- Generation Time: " . date("F j, Y", $blog_time) . " at " . date("H:i", $blog_time) . "\n\n");
         $this->write_to_temp('SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";' . "\n\n");
@@ -166,7 +166,7 @@ class WPTC_DatabaseBackup
 
     private function backup_database_table($table, $offset)
     {
-		$db_error = __('Error while accessing database.', 'wpbtd');
+		$db_error = __('Error while accessing database.', 'wptc');
 
         if ($offset == 0) {
             $this->write_to_temp("--\n-- Table structure for table `$table`\n--\n\n");
@@ -243,7 +243,7 @@ class WPTC_DatabaseBackup
         }
 
         if (fwrite($this->temp, $out) === false) {
-            throw new Exception(__('Error writing to php://memory.', 'wpbtd'));
+            throw new Exception(__('Error writing to php://memory.', 'wptc'));
         }
     }
 
@@ -256,11 +256,11 @@ class WPTC_DatabaseBackup
         fwrite($fh, stream_get_contents($this->temp));
 
         if (!fclose($fh)) {
-            throw new Exception(__('Error closing sql dump file.', 'wpbtd'));
+            throw new Exception(__('Error closing sql dump file.', 'wptc'));
         }
 
         if (!fclose($this->temp)) {
-            throw new Exception(__('Error closing php://memory.', 'wpbtd'));
+            throw new Exception(__('Error closing php://memory.', 'wptc'));
         }
 
         $this->temp = null;

@@ -239,8 +239,8 @@ class WPTC_Config
 			return $this;
 		}
 		
-		wp_clear_scheduled_hook('monitor_dropbox_backup_hook');
-        wp_clear_scheduled_hook('run_dropbox_backup_hook');
+		wp_clear_scheduled_hook('monitor_tcdropbox_backup_hook');
+        wp_clear_scheduled_hook('run_tc_backup_hook');
         wp_clear_scheduled_hook('execute_instant_drobox_backup');
 
 		$processed = new WPTC_Processed_DBTables();
@@ -248,7 +248,7 @@ class WPTC_Config
 		
         $processed = new WPTC_Processed_Files();
         //$processed->truncate();
-
+        $this->set_option('getfileslist', false);
         $this->set_option('in_progress', false);
 		$this->set_option('is_running', false);
 		$this->set_option('ignored_files_count', 0);
@@ -264,7 +264,7 @@ class WPTC_Config
     {
         $in_progress = $this->db->get_var("SELECT value FROM {$this->db->prefix}wptc_options WHERE name = 'in_progress'");
         if (!$in_progress) {
-            $msg = __('Backup stopped by user.', 'wpbtd');
+            $msg = __('Backup stopped by user.', 'wptc');
             WPTC_Factory::get('logger')->log($msg);
             die($msg);
         }

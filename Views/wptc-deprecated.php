@@ -23,9 +23,9 @@ if ($pos = strpos($v, '-'))
     $v = substr($v, 0, $pos);
 ?>
 <div class="wrap" id="wptc">
-    <div class="icon32"><img width="36px" height="36px"	 src="<?php echo $uri ?>/Images/WordPressBackupToDropbox_64.png" alt="Wordpress Backup to Dropbox Logo"></div>
-    <h2><?php _e('WordPress Time Capsule', 'wpbtd'); ?></h2>
-    <p class="description"><?php printf(__('Version %s', 'wpbtd'), BACKUP_TO_DROPBOX_VERSION) ?></p>
+    <div class="icon32"><img width="36px" height="36px"	 src="<?php echo $uri ?>/Images/WordPressTimeCapsule_64.png" alt="WordPress TimeCapsule"></div>
+    <h2><?php _e('WordPress Time Capsule', 'wptc'); ?></h2>
+    <p class="description"><?php printf(__('Version %s', 'wptc'), WPTC_VERSION) ?></p>
     <p>
         <?php _e(sprintf('
             <p>Gday,</p>
@@ -40,6 +40,6 @@ if ($pos = strpos($v, '-'))
             $v,
             'http://www.php.net/archive/2010.php#id2010-12-16-1',
             'http://downloads.wordpress.org/plugin/wp-time-capsule.1.3.zip'
-        ), 'wpbtd'); ?>
+        ), 'wptc'); ?>
     </p>
 </div>

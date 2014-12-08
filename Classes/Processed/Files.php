@@ -60,7 +60,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
     public function get_file($file_name)
     {
 		foreach ($this->processed as $file) {
-            if( ($file->file == $file_name) && ($file->backupID == getCookie('backupID'))){
+            if( ($file->file == $file_name) && ($file->backupID == getTcCookie('backupID'))){
 				return $file;
             }
         }
@@ -73,7 +73,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 
     public function update_file($file, $upload_id, $offset, $backupID = 0)
     {
-		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----getCookie---- ".var_export(getCookie('backupID'),true)."\n",FILE_APPEND);
+		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----getTcCookie---- ".var_export(getTcCookie('backupID'),true)."\n",FILE_APPEND);
 		
 		//am adding few conditions to insert the new file with new backup id if the file is modified				//manual
 		$may_be_stored_file_obj = $this->get_file($file);
@@ -88,7 +88,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 				'file' => $file,
 				'uploadid' => $upload_id,
 				'offset' => $offset,
-				'backupID' => getCookie('backupID'),                           //get the backup ID from cookie
+				'backupID' => getTcCookie('backupID'),                           //get the backup ID from cookie
 				'file_id' => $may_be_stored_file_id,
 				'mtime_during_upload' => filemtime($file),
 				'uploaded_file_size' => filesize($file),
@@ -101,7 +101,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 				'file' => $file,
 				'uploadid' => $upload_id,
 				'offset' => $offset,
-				'backupID' => getCookie('backupID'),
+				'backupID' => getTcCookie('backupID'),
 				'mtime_during_upload' => filemtime($file),
 			);
 		}
@@ -129,7 +129,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
                 'file' => $file['filename'],
                 'uploadid' => null,
                 'offset' => null,
-				'backupID' => getCookie('backupID'),
+				'backupID' => getTcCookie('backupID'),
 				'revision_number' => $file['revision_number'],
 				'revision_id' => $file['revision_id'],
 				'mtime_during_upload' => $file['mtime_during_upload'],
@@ -347,7 +347,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 	
 	public function get_processed_files_count($backup_id = null){
 		if(empty($backup_id)){
-			$backup_id = getCookie('backupID');
+			$backup_id = getTcCookie('backupID');
 		}
 		$current_backups = $this->getBackups($backup_id);
 		return count($current_backups);

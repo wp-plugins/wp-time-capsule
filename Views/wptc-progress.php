@@ -33,16 +33,18 @@ if (!$config->get_option('in_progress'))
 	if($config->get_option('in_progress'))
 	{
 		//get the current backupID
-		/* $current_backup_ID = getCookie('backupID');
+		/* $current_backup_ID = getTcCookie('backupID');
 		$return_array['backup_progress'][$current_backup_ID]['total_files'] = $config->get_option('supposed_total_files_count');
 		$return_array['backup_progress'][$current_backup_ID]['processed_files'] =  $processed_files->get_processed_files_count($current_backup_ID);
 		$return_array['backup_progress'][$current_backup_ID]['progress_percent'] =  !empty($return_array['backup_progress'][$current_backup_ID]['processed_files'])?($return_array['backup_progress'][$current_backup_ID]['processed_files']/$return_array['backup_progress'][$current_backup_ID]['total_files']):0; */
-		$current_backup_ID = getCookie('backupID');
-		$return_array['backup_progress']['total_files'] = $config->get_option('supposed_total_files_count');
-		$return_array['backup_progress']['processed_files'] =  $processed_files->get_processed_files_count($current_backup_ID);
+		$current_backup_ID = getTcCookie('backupID');
+                $return_array['backup_progress']['overall_files'] = $config->get_option('total_file_count');
+                $return_array['backup_progress']['total_files'] = $config->get_option('supposed_total_files_count');
+                $return_array['backup_progress']['processed_files'] =  $processed_files->get_processed_files_count($current_backup_ID);
+                $return_array['backup_progress']['processed_totcount'] = ($return_array['backup_progress']['overall_files']-$return_array['backup_progress']['total_files'])+$return_array['backup_progress']['processed_files'];
 		$prog_percent = 0.00002;
 		if(!empty($return_array['backup_progress']['processed_files']) && !empty($return_array['backup_progress']['total_files'])){
-			$prog_percent = $return_array['backup_progress']['processed_files']/$return_array['backup_progress']['total_files'];
+			$prog_percent = $return_array['backup_progress']['processed_totcount']/$return_array['backup_progress']['overall_files'];
 			if($prog_percent > 99){
 				$prog_percent = 0.00002;
 			}
@@ -66,10 +68,10 @@ if (empty($log)): ?>
                 echo esc_attr($log_item);
             ?>
             <?php if (!empty($files)): ?>
-                <a class="view-files" href="#"><?php _e('View uploaded', 'wpbtd') ?> &raquo;</a>
+                <a class="view-files" href="#"><?php _e('View uploaded', 'wptc') ?> &raquo;</a>
                 <ul class="files">
                     <?php foreach ($files as $file): ?>
-                        <li title="<?php echo sprintf(__('Last modified: %s', 'wpbtd'), date('F j, Y, H:i:s', $file['mtime'])) ?>"><?php echo esc_attr($file['file']) ?></li>
+                        <li title="<?php echo sprintf(__('Last modified: %s', 'wptc'), date('F j, Y, H:i:s', $file['mtime'])) ?>"><?php echo esc_attr($file['file']) ?></li>
                     <?php endforeach; ?>
                 </ul>
             <?php $files = null; endif; ?>

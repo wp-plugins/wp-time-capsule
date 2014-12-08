@@ -23,18 +23,27 @@ $backup = new WPTC_BackupController();
 
 $backup->create_dump_dir();  			//creating backup folder in the beginning if its not there
 
+//Checking fresh backup 
+global $wpdb;
+$fcount=$wpdb->get_results( 'SELECT COUNT(*) as files FROM '.$wpdb->prefix.'wptc_processed_files' );
+if(!($fcount[0]->files > 0))
+    $fresh="yes";
+else
+    $fresh="no";
+
+
 if (array_key_exists('stop_backup', $_POST)) {
     check_admin_referer('wordpress_time_capsule_monitor_stop');
     $backup->stop();
 
-    add_settings_error('wptc_monitor', 'backup_stopped', __('Backup stopped.', 'wpbtd'), 'updated');
+    add_settings_error('wptc_monitor', 'backup_stopped', __('Backup stopped.', 'wptc'), 'updated');
 
 } elseif (array_key_exists('start_backup', $_POST)) {
     check_admin_referer('wordpress_time_capsule_monitor_stop');
     $backup->backup_now();
 	//$backup->restore_execute();
     $started = true;
-    add_settings_error('wptc_monitor', 'backup_started', __('Backup started.', 'wpbtd'), 'updated');
+    add_settings_error('wptc_monitor', 'backup_started', __('Backup started.', 'wptc'), 'updated');
 }
 
 ?>
@@ -45,7 +54,9 @@ if (array_key_exists('stop_backup', $_POST)) {
 <script src='<?php echo $uri;?>/fullcalendar-2.0.2/fullcalendar.js'></script>
 <?php add_thickbox(); ?>
 <script type="text/javascript" language="javascript">
-    function reload() {
+    var sitename='<?php echo get_bloginfo( 'name' );?>';
+    var fresh='<?php echo $fresh;?>';
+    function wtc_reload() {
 		//console.log('calling reload');
 		jQuery('.files').hide();
         jQuery.post(ajaxurl, { action : 'progress' }, function(data) {
@@ -98,23 +109,23 @@ if (array_key_exists('stop_backup', $_POST)) {
             }
         });
 		
-		reloadFuncTimeout = setTimeout(function(){reload();}, 15000);
+		reloadFuncTimeout = setTimeout(function(){wtc_reload();}, 15000);
 		
 		/* started_fresh_backup = '<?php //echo WPTC_Factory::get('config')->get_option('in_progress');?>';
 		if(started_fresh_backup && started_fresh_backup == '1')
 		//if((typeof started_fresh_backup != 'undefined')&&(started_fresh_backup != false))
 		{
-			reloadFuncTimeout = setTimeout(function(){reload();}, 5000);
+			reloadFuncTimeout = setTimeout(function(){wtc_reload();}, 5000);
 			started_fresh_backup = false;
 		} */
 		
     }
 	
-	function stop_backup_func(){
+	function wtc_stop_backup_func(){
 		var this_obj = jQuery(this);
 		jQuery.post(ajaxurl, { action : 'stop_fresh_backup_tc' }, function(data) {
 			//call the reload function which tells the progress
-			//reload();
+			//wtc_reload();
 			jQuery('#start_backup').val("Stop Backup");
 			jQuery(this_obj).hide();
 			window.location = '<?php echo admin_url('?page=wp-time-capsule-monitor'); ?>';
@@ -509,13 +520,13 @@ if (array_key_exists('stop_backup', $_POST)) {
 			}
 			//var group_par = jQuery(this).closest(".single_group_backup_content");
 			var files_to_restore = {};
-			//files_to_restore = initializeRestore();
+			//files_to_restore = wtc_initializeRestore();
 			
-			files_to_restore = initializeRestore(jQuery(this), 'single');
+			files_to_restore = wtc_initializeRestore(jQuery(this), 'single');
 			//the follwing two functions are the ajax functions which performs restore operations
 			startRestore(files_to_restore, false);
 			checkIfNoResponse('startRestore');
-			getRestoreProgress();
+			getTcRestoreProgress();
 			getAndStoreBridgeURL();
 			
 			e.stopImmediatePropagation();
@@ -525,13 +536,13 @@ if (array_key_exists('stop_backup', $_POST)) {
 		jQuery('.this_restore_point').on('click', function(e) {
 			//var group_par = jQuery(this).closest(".single_group_backup_content");
 			var files_to_restore = {};
-			files_to_restore = initializeRestore(jQuery(this), 'all');
+			files_to_restore = wtc_initializeRestore(jQuery(this), 'all');
 			var cur_res_b_id = jQuery(this).closest(".single_group_backup_content").attr("this_backup_id");
 			//return false;
 			//the follwing two functions are the ajax functions which performs restore operations
 			startRestore(files_to_restore, cur_res_b_id);
 			checkIfNoResponse('startRestore');
-			getRestoreProgress();
+			getTcRestoreProgress();
 			getAndStoreBridgeURL();
 			
 			e.stopImmediatePropagation();
@@ -550,7 +561,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 		});
 	}
 	
-	function initializeRestore(obj, type){
+	function wtc_initializeRestore(obj, type){
 		//this function returns the files to be restored ; shows the dialog box ; clear the reload timeout for backup ajax function
 		var files_to_restore = {};
 		
@@ -573,7 +584,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 		//console.log(files_to_restore);
 		
 		//show the progress bar dialog
-		var this_html = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><div class="pu_title">Restoring infinitewp.com</div><div class="wcard progress_reverse" style="height:60px; padding:0;"><div class="progress_bar" style="width:2%;"></div>  <div class="progress_cont">Warping back in time... Hold on tight!</div></div></div>';
+		var this_html = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><div class="pu_title">Restoring '+sitename+'</div><div class="wcard progress_reverse" style="height:60px; padding:0;"><div class="progress_bar" style="width:2%;"></div>  <div class="progress_cont">Warping back in time... Hold on tight!</div></div></div>';
 		
 		jQuery("#TB_ajaxContent").html(this_html);
 		styling_thickbox_tc('restore');
@@ -655,9 +666,10 @@ if (array_key_exists('stop_backup', $_POST)) {
 		return a;
 	}
 	
-	function getRestoreProgress(){
+	function getTcRestoreProgress(){
 		var this_plugin_url = '<?php echo plugins_url('wp-time-capsule'); ?>' ;
 		var this_data = '';
+		
 		jQuery.ajax({
 			traditional: true,
 			type: 'post',
@@ -671,14 +683,14 @@ if (array_key_exists('stop_backup', $_POST)) {
 					{
 						//console.log(request);
 						
-						var this_html = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><div class="pu_title">Restoring infinitewp.com</div><div class="wcard progress_reverse" style="height:60px; padding:0;"><div class="progress_bar" style="width:'+request['downloaded_files_percent']+'%;"></div>  <div class="progress_cont">Warping back in time... Hold on tight!</div></div></div>';
+						var this_html = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><div class="pu_title">Restoring '+sitename+'</div><div class="wcard progress_reverse" style="height:60px; padding:0;"><div class="progress_bar" style="width:'+request['downloaded_files_percent']+'%;"></div>  <div class="progress_cont">Warping back in time... Hold on tight!</div></div></div>';
 						jQuery("#TB_ajaxContent").html(this_html);
 					}
 					if(typeof request['copied_files_percent'] != 'undefined')
 					{
 						//console.log(request);
 						
-						var this_html = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;padding: 0px 34px 26px 34px;"><div class="pu_title">Restoring infinitewp.com</div><div class="wcard progress_reverse" style="height:60px; padding:0;"><div class="progress_bar" style="width:'+request['copied_files_percent']+'%;"></div>  <div class="progress_cont">Coping Files... Hold on tight!</div></div></div>';
+						var this_html = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;padding: 0px 34px 26px 34px;"><div class="pu_title">Restoring '+sitename+'</div><div class="wcard progress_reverse" style="height:60px; padding:0;"><div class="progress_bar" style="width:'+request['copied_files_percent']+'%;"></div>  <div class="progress_cont">Coping Files... Hold on tight!</div></div></div>';
 						jQuery("#TB_ajaxContent").html(this_html);
 					}
 				}
@@ -695,7 +707,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 					
 			}
 		});
-		getRestoreProgressTimeout = setTimeout(function(){getRestoreProgress();}, 5000);
+		getRestoreProgressTimeout = setTimeout(function(){getTcRestoreProgress();}, 5000);
 	}
 	
 	function startRestore(files_to_restore, cur_res_b_id){
@@ -705,13 +717,11 @@ if (array_key_exists('stop_backup', $_POST)) {
 		var this_plugin_url = '<?php echo plugins_url('wp-time-capsule'); ?>' ;
 		var this_data = '';
 		var post_array = {};
+        post_array['cur_res_b_id'] = cur_res_b_id;
 		post_array['files_to_restore'] = files_to_restore;
-		post_array['cur_res_b_id'] = cur_res_b_id;
-		
-		if((typeof post_array['files_to_restore'] != 'undefined') && (typeof post_array['cur_res_b_id'] != 'undefined')){
-			this_data = jQuery.param(post_array);
-		}
-		//console.log('calling start restore');
+//		if((typeof post_array['files_to_restore'] != 'undefined') && (typeof post_array['cur_res_b_id'] != 'undefined')){
+//			this_data = jQuery.param(post_array);
+//		}
 		var this_ajax_url = this_plugin_url+'/plugin-ajax.php';
 		jQuery.post(ajaxurl, { action : 'start_restore_tc', data: post_array }, function(request) {
 			//console.log(request);
@@ -942,7 +952,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 			});
 		}); */
 		
-        reload();
+        wtc_reload();
 		
 		jQuery('#start_backup').on('click', function(){
 			if(jQuery(this).val() != 'Stop Backup'){
@@ -957,7 +967,11 @@ if (array_key_exists('stop_backup', $_POST)) {
 				
 					//calling the progress bar function
 					show_backup_progress_dialog('', 'fresh');
-					
+                                        
+                                        if(fresh=='yes'){
+                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p>Initial backup will take time, please wait and dont close the window</p></div>';
+                                            jQuery(".backup_progress_tc").parent().append(inicontent);
+                                        }
 					//call the name storing funciton to give this backup process a name 
 					show_get_name_dialog_tc();
 					backup_end = true;
@@ -966,7 +980,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 			else{
 				//console.log('backup stopping');
 				//call the ajax function to perform the backup actions
-				stop_backup_func();
+				wtc_stop_backup_func();
 			}
 		}); 
 		
@@ -990,7 +1004,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 			else{
 				//console.log('backup stopping');
 				//call the ajax function to perform the backup actions
-				stop_backup_func();
+				wtc_stop_backup_func();
 			}
 		});
 		
@@ -1006,12 +1020,12 @@ if (array_key_exists('stop_backup', $_POST)) {
     
     <?php settings_errors(); ?>
 
-    <h3><?php _e('Backups', 'wpbtd'); ?></h3>
+    <h3><?php _e('Backups', 'wptc'); ?></h3>
 	<form id="backup_to_dropbox_options" name="backup_to_dropbox_options" style="margin: -40px 0px 8px 85px;" action="admin.php?page=wp-time-capsule-monitor" method="post">
         <?php if ($config->get_option('in_progress') || isset($started)): ?>
-            <input type="button" id="stop_backup" name="stop_backup" class="button-primary" value="<?php _e('Stop Backup', 'wpbtd'); ?>">
+            <input type="button" id="stop_backup" name="stop_backup" class="button-primary" value="<?php _e('Stop Backup', 'wptc'); ?>">
         <?php else: ?>
-            <input type="button" id="start_backup" name="start_backup" class="button-primary" value="<?php _e('Backup Now', 'wpbtd'); ?>">
+            <input type="button" id="start_backup" name="start_backup" class="button-primary" value="<?php _e('Backup Now', 'wptc'); ?>">
         <?php endif; ?>
 
         <?php wp_nonce_field('wordpress_time_capsule_monitor_stop'); ?>

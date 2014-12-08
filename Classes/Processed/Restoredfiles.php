@@ -92,7 +92,7 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
 
     public function update_file($file, $upload_id = null, $offset, $backupID = 0, $chunked = null)
     {
-		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----getCookie---- ".var_export(getCookie('backupID'),true)."\n",FILE_APPEND);
+		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----getTcCookie---- ".var_export(getTcCookie('backupID'),true)."\n",FILE_APPEND);
 		//am adding few conditions to insert the new file with new backup id if the file is modified				//manual
 		
 		$may_be_stored_file_obj = $this->get_file($file);
@@ -113,7 +113,7 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
 			$upsert_array = array(
 				'file' => $file,
 				'offset' => $offset,
-				'backupID' => getCookie('backupID'),                           //get the backup ID from cookie
+				'backupID' => getTcCookie('backupID'),                           //get the backup ID from cookie
 				'file_id' => $may_be_stored_file_id,
 			);
 		}
@@ -123,7 +123,7 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
 				'file' => $file,
 				'offset' => $offset,
 				'download_status' => $download_status,
-				'backupID' => getCookie('backupID'),
+				'backupID' => getTcCookie('backupID'),
 			);
 		}
 		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----track download offset update file------- ".var_export($upsert_array,true)."\n",FILE_APPEND);
@@ -146,14 +146,16 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
 					$this_filename = substr($this_filename, 0, $this_pos);
 				}
 				//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----foreach add_files_for_restoring------- ".var_export($this_filename,true)."\n",FILE_APPEND);
-				$this->upsert(array(
-					'file' => $this_filename,
-					'revision_id' => $revision,
-					'offset' => null,
-					'backupID' => getCookie('backupID'),
-					'uploaded_file_size' => $file_dets['file_size'],
-					'download_status' => ($file_dets['file_size'] > 4024000) ? 'done' : 'notDone',				//am adding an extra condition for chunked download
-				));
+                                if($this_filename!=""){
+                                    $this->upsert(array(
+                                            'file' => $this_filename,
+                                            'revision_id' => $revision,
+                                            'offset' => null,
+                                            'backupID' => getTcCookie('backupID'),
+                                            'uploaded_file_size' => $file_dets['file_size'],
+                                            'download_status' => ($file_dets['file_size'] > 4024000) ? 'done' : 'notDone',				//am adding an extra condition for chunked download
+                                    ));
+                                }
 			}
 		}
 	}
@@ -178,7 +180,7 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
                 'file' => $file['file'],
                 'uploadid' => null,
                 'offset' => null,
-				'backupID' => getCookie('backupID'),
+				'backupID' => getTcCookie('backupID'),
 				'revision_number' => $file['revision_number'],
 				'revision_id' => $file['revision_id'],
 				'mtime_during_upload' => $file['mtime_during_upload'],

@@ -1,15 +1,15 @@
 === WP Time Capsule ===
-Contributors: WPTimeCapsule, dark-prince
+Contributors: WPTimeCapsule
 Tags: wptimecapsule, wordpress backup, dropbox backup, wordpress incremental backup, backup without zip
 Requires at least: 3.0
 Tested up to: 4.0
-Stable tag: 1.0.0alpha3
+Stable tag: 1.0.0alpha4
 
 WP Time Capsule does incremental backup - backing up only the changes that happened since previous backup rather the complete site every time.
 
 == Description ==
 
-[WP Time Capsule](http://wptimecapsule.com/ "Incremental Backup for WordPress") is the time-machine for your WordPress site. It uses Dropbox to backup your WordPress site. It does incremental backup - backing up only the changes that happened since previous backup rather the complete site every time. 
+WP Time Capsule is the time-machine for your WordPress site. It uses Dropbox to backup your WordPress site. It does incremental backup - backing up only the changes that happened since previous backup rather the complete site every time. 
 
 The Awesome features WP Time Capsule
 
@@ -31,7 +31,6 @@ Clone WordPress site - Clone new sites from existing sites in just a click
 
 Roll-back - Restore your WordPress sites automatically if anything breaks
 
-Visit us at [wptimecapsule.com](http://wptimecapsule.com/ "Incremental Backup for WordPress")
 
 == Installation ==
 
@@ -39,3 +38,5 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 1. Login to your WordPress dashboard, under Plugins click Add New
 2. In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it
 3. Once installed click Activate plugin. You can see the WP Time Capsule plugin in dashboard
+
+

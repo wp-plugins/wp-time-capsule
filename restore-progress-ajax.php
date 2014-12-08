@@ -3,6 +3,8 @@
 exit; */
 
 //ajax file to handle restore progress
+require_once("../../../wp-config.php");
+require_once("wp-time-capsule.php");
 
 //initialize a db object and config object
 $dbObj = WPTC_Factory::db();

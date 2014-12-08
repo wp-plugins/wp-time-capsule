@@ -20,11 +20,11 @@
  */
 class WPTC_DropboxFacade
 {
-    const CONSUMER_KEY = '3wfd3pbenoy7y7q';
-    //const CONSUMER_KEY = 'u1i8xniul59ggxs';
-    const CONSUMER_SECRET = 'i1wzb0eqvkibqkk';
-    //const CONSUMER_SECRET = '0ssom5yd1ybebhy';
+    
+    const CONSUMER_KEY = 'hp7g2dq9tc81dwe';
+    const CONSUMER_SECRET = '2yj55pkigkh8586';
     const RETRY_COUNT = 3;
+
 
     private static $instance = null;
 

@@ -1,52 +1,53 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: wpbtd\n"
+"Project-Id-Version: wptc\n"
 "POT-Creation-Date: 2013-08-05 14:34+1000\n"
-"PO-Revision-Date: 2014-04-22 11:53+0100\n"
+"PO-Revision-Date: 2013-08-05 14:37+1000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
+"X-Generator: Poedit 1.5.7\n"
 "X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e\n"
 "X-Poedit-Basepath: .\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: da_DK\n"
+"wp-time-capsule\n"
 
 #: wp-backup-to-dropbox.php:91
 msgid "WPTC"
-msgstr "WPTC"
+msgstr ""
 
 #: wp-backup-to-dropbox.php:94
 msgid "Backup Settings"
-msgstr "Backup Indstillinger"
+msgstr ""
 
-#: wp-backup-to-dropbox.php:98 Views/wp-backup-to-dropbox-monitor.php:69
+#: wp-backup-to-dropbox.php:98
+#: Views/wp-backup-to-dropbox-monitor.php:69
 msgid "Backup Log"
-msgstr "Backup Log"
+msgstr ""
 
-#: wp-backup-to-dropbox.php:103 Views/wp-backup-to-dropbox-premium.php:53
+#: wp-backup-to-dropbox.php:103
+#: Views/wp-backup-to-dropbox-premium.php:53
 msgid "Premium Extensions"
-msgstr "Premium Udvidelser"
+msgstr ""
 
 #: wp-backup-to-dropbox.php:173
 #, php-format
 msgid "Backup started on %s."
-msgstr "Backup startet den %s."
+msgstr ""
 
 #: wp-backup-to-dropbox.php:177
 #, php-format
 msgid "Your time limit is %s and your memory limit is %s"
-msgstr "Din PHP tids frist er %s og din hukommelses grænse er %s."
+msgstr ""
 
 #: wp-backup-to-dropbox.php:178
 msgid "seconds"
-msgstr "sekunder"
+msgstr ""
 
 #: wp-backup-to-dropbox.php:178
 msgid "unlimited"
-msgstr "ubegrænset"
+msgstr ""
 
 #: wp-backup-to-dropbox.php:183
 msgid ""
@@ -54,17 +55,12 @@ msgid ""
 "be set by the backup process. So if your backup fails it's highly probable "
 "that these settings are too low."
 msgstr ""
-"Fejlsikret tilstand er aktiveret på din server, så PHP tid og hukommelse "
-"grænse kan ikke indstilles af backup-processen. Hvis din backup mislykkes, "
-"er det meget sandsynligt, at disse indstillinger er for lave."
 
 #: wp-backup-to-dropbox.php:205
 msgid ""
 "There has been no backup activity for a long time. Attempting to resume the "
 "backup."
 msgstr ""
-"Der har ikke været nogen backup aktivitet i lang tid. Forsøger at genoptage "
-"sikkerhedskopieringen."
 
 #: Classes/class-dropbox-facade.php:45
 #, php-format
@@ -72,24 +68,22 @@ msgid ""
 "The cURL extension is not loaded. %sPlease ensure its installed and "
 "activated.%s"
 msgstr ""
-"cURL udvidelsen er ikke indlæst. %s sikre venligst at den er installeret og "
-"aktiveret.%s"
 
 #: Classes/class-wp-backup-config.php:188
 msgid "Backup stopped by user."
-msgstr "Backup stoppet af brugeren."
+msgstr ""
 
 #: Classes/class-wp-backup-database-core.php:28
 msgid "Creating SQL backup of your WordPress core."
-msgstr "Opretter SQL backup af din WordPress kerne."
+msgstr ""
 
 #: Classes/class-wp-backup-database-plugins.php:28
 msgid "Creating SQL backup of your WordPress plugins."
-msgstr "Opretter SQL backup af dine WordPress plugins."
+msgstr ""
 
 #: Classes/class-wp-backup-database.php:82
 msgid "Error creating sql dump file."
-msgstr "Fejl ved oprettelse af sql dump-fil."
+msgstr ""
 
 #: Classes/class-wp-backup-database.php:87
 #, php-format
@@ -97,40 +91,36 @@ msgid ""
 "A database backup cannot be created because WordPress does not have write "
 "access to '%s', please ensure this directory has write access."
 msgstr ""
-"En database backup kan ikke oprettes, da WordPress ikke har skriveadgang til "
-"'%s', du skal sikre denne mappe har skriveadgang"
 
 #: Classes/class-wp-backup-database.php:112
 msgid "Error while accessing database."
-msgstr "Fejl ved adgang til databasen."
+msgstr ""
 
 #: Classes/class-wp-backup-database.php:156
 msgid "Error writing to sql dump file."
-msgstr "Fejl ved skrivning til SQL dump fil."
+msgstr ""
 
 #: Classes/class-wp-backup-database.php:161
 msgid "Error closing sql dump file."
-msgstr "Fejl under lukning af sql dump-fil."
+msgstr ""
 
 #: Classes/class-wp-backup-extension-manager.php:62
 msgid "There was an error getting the list of premium extensions"
-msgstr "Fejl, kan ikke hente listen over premium udvidelser"
+msgstr ""
 
 #: Classes/class-wp-backup-extension-manager.php:106
 msgid ""
 "this might be because 'wp-content/plugins/wp-time-capsule/"
 "Extensions' is not writeable."
 msgstr ""
-"dette kan være, fordi 'wp-content/plugins/wp-time-capsule/"
-"Extensions' er ikke skrivbar."
 
 #: Classes/class-wp-backup-extension-manager.php:110
 msgid "There was an error downloading your premium extension"
-msgstr "Der opstod en fejl under overførsel af din præmie udvidelse"
+msgstr ""
 
 #: Classes/class-wp-backup-extension-manager.php:121
 msgid "There was an error installing your premium extension"
-msgstr "Der opstod en fejl under indstallering af din præmie udvidelse"
+msgstr ""
 
 #: Classes/class-wp-backup-output.php:38
 #, php-format
@@ -138,60 +128,57 @@ msgid ""
 "The backup is having trouble uploading files to Dropbox, it has failed %s "
 "times and is aborting the backup."
 msgstr ""
-"Den her backup har problemer med at uploade filer til Dropbox, det er "
-"mislykkedes %s gange, nu afbrydes sikkerhedskopieringen."
 
 #: Classes/class-wp-backup-output.php:41
 msgid "Dropbox API not set"
-msgstr "Dropbox API ikke indstillet"
+msgstr ""
 
 #: Classes/class-wp-backup-output.php:52
 #, php-format
 msgid "Uploading large file '%s' (%sMB) in chunks"
-msgstr "Upload af stor fil '%s' (%sMB) i mindre stykker"
+msgstr ""
 
 #: Classes/class-wp-backup-output.php:54
 #, php-format
 msgid "Resuming upload of large file '%s'"
-msgstr "Genoptager upload af stor fil '%s'"
+msgstr ""
 
 #: Classes/class-wp-backup-output.php:69
 #, php-format
 msgid "Error uploading '%s' to Dropbox: %s"
-msgstr "Fejl ved upload af '%s' til Dropbox: %s"
+msgstr ""
 
 #: Classes/class-wp-backup-upload-tracker.php:35
 #, php-format
 msgid "Uploaded %sMB of %sMB"
-msgstr "Uploaded %sMB af %sMB"
+msgstr ""
 
 #: Classes/class-wp-backup.php:77
 #, php-format
 msgid "Approximately %s%% complete."
-msgstr "Cirka %s%% færdig."
+msgstr ""
 
 #: Classes/class-wp-backup.php:125
 msgid "Your Dropbox account is not authorized yet."
-msgstr "Din Dropbox-konto er ikke godkendt endnu."
+msgstr ""
 
 #: Classes/class-wp-backup.php:154
 msgid "Backup complete."
-msgstr "Backup færdig."
+msgstr ""
 
 #: Classes/class-wp-backup.php:155
 #, php-format
 msgid "A total of %s files were processed."
-msgstr "I alt er %s filer behandlet."
+msgstr ""
 
 #: Classes/class-wp-backup.php:157
 #, php-format
 msgid "A total of %dMB of memory was used to complete this backup."
 msgstr ""
-"I alt er %dMB hukommelse blevet brugt til at fuldføre denne sikkerhedskopi."
 
 #: Classes/class-wp-backup.php:179
 msgid "The plugin is no longer authorized with Dropbox."
-msgstr "Dette plugin er ikke længere sammenkoblet med Dropbox."
+msgstr ""
 
 #: Classes/class-wp-backup.php:215
 #, php-format
@@ -199,8 +186,6 @@ msgid ""
 "WordPress does not have write access to '%s'. Please grant it write "
 "privileges before using this plugin."
 msgstr ""
-"WordPress har ikke skriveadgang til '%s'. Venligst giv den skrive "
-"privilegier, inden du bruger dette plugin."
 
 #: Classes/class-wp-backup.php:227
 #, php-format
@@ -208,12 +193,10 @@ msgid ""
 "WordPress Backup to Dropbox requires write access to '%s', please ensure it "
 "exists and has write permissions."
 msgstr ""
-"WordPress Backup til Dropbox kræver skriveadgang til '%s', du skal sikre, at "
-"stien eksistere og at der er skriverettigheder."
 
 #: Extensions/class-email-notifications.php:28
 msgid "Email Settings"
-msgstr "Email indstillinger"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:53
 #, php-format
@@ -222,42 +205,39 @@ msgid ""
 "%s.\n"
 "\n"
 msgstr ""
-"Dette er en meddelelse fra WordPress Backup til Dropbox plugin installeret "
-"på %s. \n"
-"\v\n"
 
 #: Extensions/class-email-notifications.php:56
 #, php-format
 msgid "The last backup successfully completed on %s at %s."
-msgstr "Den sidste backup er gennemført den %s kl. %s."
+msgstr ""
 
 #: Extensions/class-email-notifications.php:58
 #, php-format
 msgid "Eeek, there was an error with the last backup on %s at %s."
-msgstr "Pis, der var en fejl med den sidste backup den %s kl. %s."
+msgstr ""
 
 #: Extensions/class-email-notifications.php:60
 msgid "Here is the error log:"
-msgstr "Her er fejlloggen:"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:65
 #, php-format
 msgid "WPTC backup completed on %s at %s"
-msgstr "WPTC backup afsluttet den %s kl. %s"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:67
 #, php-format
 msgid "WPTC backup failed on %s at %s"
-msgstr "WPTC backup mislykkedes den %s kl. %s"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:78
 #, php-format
 msgid "Backup status email sent to %s."
-msgstr "Backup status email sendt til %s."
+msgstr ""
 
 #: Extensions/class-email-notifications.php:100
 msgid "Invalid email address"
-msgstr "Ugyldig email adresse"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:168
 #: Extensions/class-zip-backup.php:225
@@ -266,7 +246,7 @@ msgstr "Ugyldig email adresse"
 #: Views/wp-backup-to-dropbox-options.php:142
 #: Views/wp-backup-to-dropbox-premium.php:51
 msgid "WordPress Backup to Dropbox"
-msgstr "WordPress Backup to Dropbox"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:169
 #: Extensions/class-zip-backup.php:226
@@ -276,390 +256,369 @@ msgstr "WordPress Backup to Dropbox"
 #: Views/wp-backup-to-dropbox-premium.php:52
 #, php-format
 msgid "Version %s"
-msgstr "Version %s"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:170
 msgid "Email Notifications"
-msgstr "Email meddelelser"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:177
 msgid "Notify me on success"
-msgstr "Orienter mig om succes"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:184
 msgid "Notify me on failure"
-msgstr "Orienter mig om fejl"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:191
 msgid "Send notification emails to"
-msgstr "Send meddelelse e-mails til"
+msgstr ""
 
 #: Extensions/class-email-notifications.php:204
 #: Extensions/class-zip-backup.php:259
 #: Views/wp-backup-to-dropbox-options.php:347
 msgid "Save Changes"
-msgstr "Gem ændringer"
+msgstr ""
 
 #: Extensions/class-zip-backup.php:62
 msgid "Zip Settings"
-msgstr "Zip indstillinger"
+msgstr ""
 
 #: Extensions/class-zip-backup.php:82
 #, php-format
 msgid "Uploading %s (%sMB) in chunks."
-msgstr "Uploader %s (%sMB) i mindre stykker."
+msgstr ""
 
 #: Extensions/class-zip-backup.php:90
 #, php-format
 msgid "Uploading %s (%sMB)."
-msgstr "Uploader %s (%sMB)."
+msgstr ""
 
 #: Extensions/class-zip-backup.php:116
 #, php-format
 msgid "Deleting old zip archive %s"
-msgstr "Sletter gammel zip fil  %s"
+msgstr ""
 
 #: Extensions/class-zip-backup.php:136
 msgid "Zip archive complete"
-msgstr "Zip arkiv fuldført"
+msgstr ""
 
 #: Extensions/class-zip-backup.php:179
 msgid "Backups to keep must be a positive number."
-msgstr "Backups der skal beholdes, skal være et positivt tal."
+msgstr ""
 
 #: Extensions/class-zip-backup.php:227
 msgid "Zip Backup"
-msgstr "Zip Backup"
+msgstr ""
 
 #: Extensions/class-zip-backup.php:235
 msgid "Enable zip backup"
-msgstr "Aktiver zip backup"
+msgstr ""
 
 #: Extensions/class-zip-backup.php:242
 msgid "How many backups do you want to keep within Dropbox?"
-msgstr "Hvor mange sikkerhedskopier ønsker du at holde sig inden for Dropbox?"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-monitor.php:76
 #: Views/wp-backup-to-dropbox-options.php:338
 msgid "Loading..."
-msgstr "Loading..."
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-monitor.php:80
 msgid "Stop Backup"
-msgstr "Stop Backup"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-monitor.php:82
 msgid "Start Backup"
-msgstr "Start Backup"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:24
 msgid ""
 "WordPress Backup to Dropbox failed to initialize due to these database "
 "errors."
 msgstr ""
-"WordPress Backup til Dropbox kunne ikke initialiseres på grund af database "
-"fejl."
 
 #: Views/wp-backup-to-dropbox-options.php:43
 msgid "The sub directory must only contain alphanumeric characters."
-msgstr "Sub bibliotek må kun indeholde alfanumeriske tegn."
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:82
 #: Views/wp-backup-to-dropbox-options.php:237
 #: Views/wp-backup-to-dropbox-options.php:298
 msgid "Daily"
-msgstr "Daglig"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:149
 msgid "Dropbox Account Details"
-msgstr "Dropbox Konto Detaljer"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:155
 msgid "you have"
-msgstr "du har"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:157
 msgid "Gigabyte"
-msgstr "Gigabyte"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:158
 msgid "of"
-msgstr "af"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:159
 msgid "free"
-msgstr "fri"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:161
 msgid "Unlink Account"
-msgstr "Fjern konto link"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:163
 msgid "Next Scheduled"
-msgstr "Næste Planlagt"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:168
 #, php-format
 msgid "Next backup scheduled for %s at %s"
-msgstr "Næste backup planlagt til %s kl. %s"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:170
 msgid ""
 "No backups are scheduled yet. Please select a day, time and frequency below. "
 msgstr ""
-"Ingen backups er planlagt endnu. Vælg en dag, tid og frekvens nedenfor."
 
 #: Views/wp-backup-to-dropbox-options.php:172
 msgid "History"
-msgstr "Historik"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:188
 #, php-format
 msgid "Backup completed on %s at %s."
-msgstr "Backup afsluttet den %s kl. %s."
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:191
 msgid "Clear history"
-msgstr "Ryd historik"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:193
 msgid "No history"
-msgstr "Ingen historik"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:196
 msgid "Settings"
-msgstr "Indstillinger"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:201
 msgid "Store backup in a subfolder of the wptc app folder"
-msgstr "Opbevar backup i en undermappe til wptc app mappen"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:219
 msgid "Day and Time"
-msgstr "Dag og Tid"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:223
 msgid "Monday"
-msgstr "Mandag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:225
 msgid "Tuesday"
-msgstr "Tirsdag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:227
 msgid "Wednesday"
-msgstr "Onsdag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:229
 msgid "Thursday"
-msgstr "Torsdag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:231
 msgid "Friday"
-msgstr "Fredag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:233
 msgid "Saturday"
-msgstr "Lørdag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:235
 msgid "Sunday"
-msgstr "Søndag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:239
 msgid "at"
-msgstr "Kl."
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:290
 msgid "The day and time the backup to Dropbox is to be performed."
-msgstr "Dag og tid for hvornår backup til Dropbox skal udføres."
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:294
 msgid "Frequency"
-msgstr "Frekvens"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:301
 msgid "Weekly"
-msgstr "Ugentlig"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:305
 msgid "Fortnightly"
-msgstr "Hver fjortende dag"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:308
 msgid "Every 4 weeks"
-msgstr "Hver 4. uge"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:312
 msgid "Every 8 weeks"
-msgstr "Hver 8. uge"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:316
 msgid "Every 12 weeks"
-msgstr "Hver 12. uge"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:319
 msgid "How often the backup to Dropbox is to be performed."
-msgstr "Hvor ofte skal der tages backup"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:325
 msgid "Excluded Files and Directories"
-msgstr "Udelukkede filer og biblioteker"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:328
 msgid ""
 "Select the files and directories that you wish to exclude from your backup. "
 "You can expand directories with contents by clicking its name."
 msgstr ""
-"Vælg de filer og mapper, som du ønsker at udelukke fra din backup. Du kan "
-"udvide mapper med indhold ved at klikke på navnet."
 
 #: Views/wp-backup-to-dropbox-options.php:329
 #: Views/wp-backup-to-dropbox-premium.php:114
 msgid "Please Note:"
-msgstr "Bemærk venligst:"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:329
 msgid ""
 "Your SQL dump file will always be backed up regardless of what is selected "
 "below."
 msgstr ""
-"Din SQL dump fil, vil altid blive bakket op, uanset hvad der er valgt "
-"nedenfor."
 
 #: Views/wp-backup-to-dropbox-options.php:340
 msgid "Exclude:"
-msgstr "Udeluk:"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:341
 msgid "All"
-msgstr "Alle"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:342
 msgid "None"
-msgstr "Ingen"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:343
 msgid "Inverse"
-msgstr "Omvendt"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:356
 msgid "Thank you for installing WordPress Backup to Dropbox!"
-msgstr "Tak for at installere WordPress Backup til Dropbox!"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:357
 msgid ""
 "In order to use this plugin you will need to authorized it with your Dropbox "
 "account."
 msgstr ""
-"For at bruge dette plugin vil du nødt til at godkende det med din Dropbox "
-"konto."
 
 #: Views/wp-backup-to-dropbox-options.php:358
 msgid ""
 "Please click the authorize button below and follow the instructions inside "
 "the pop up window."
 msgstr ""
-"Klik på knappen Godkend nedenfor og følg instruktionerne inde i pop up "
-"vinduet."
 
 #: Views/wp-backup-to-dropbox-options.php:361
 msgid ""
 "There was an error authorizing the plugin with your Dropbox account. Please "
 "try again."
 msgstr ""
-"Der var en godkendelses fejl med din Dropbox-konto. Prøv venligst igen."
 
 #: Views/wp-backup-to-dropbox-options.php:365
 msgid "Authorize"
-msgstr "Godkend"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:368
 msgid "Continue"
-msgstr "Fortsæt"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-options.php:376
 msgid ""
 "There was a fatal error loading WordPress Backup to Dropbox. Please fix the "
 "problems listed and reload the page."
 msgstr ""
-"Der var en fatal fejl ved indlæsning WordPress Backup til Dropbox. Venligst "
-"løs problemerne og genindlæs siden."
 
 #: Views/wp-backup-to-dropbox-options.php:377
 msgid "If the problem persists please re-install WordPress Backup to Dropbox."
 msgstr ""
-"Hvis problemet fortsætter skal du geninstallere WordPress Backup til Dropbox"
 
 #: Views/wp-backup-to-dropbox-options.php:378
 msgid "Error message:"
-msgstr "Fejlmeddelelse:"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:30
 #, php-format
 msgid "There was an error with your payment, please contact %s to resolve."
 msgstr ""
-"Der opstod en fejl med din betaling, du bedes kontakte %s for at løse "
-"problemet."
 
 #: Views/wp-backup-to-dropbox-premium.php:33
 #, php-format
 msgid ""
 "You have succesfully purchased the %s premium extension, please install it "
 "below."
-msgstr "Du har nu købt %s premium extension, venligst installer nedestående."
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:56
 msgid ""
 "Welcome to Premium Extensions. Please choose an extension below to enhance "
 "WordPress Backup to Dropbox."
 msgstr ""
-"Velkommen til Premium Extensions. Vælg en udvidelse nedenfor for at forbedre "
-"WordPress Backup til Dropbox."
 
 #: Views/wp-backup-to-dropbox-premium.php:57
 msgid "Installing a premium extensions is easy:"
-msgstr "Installation af premium extensions er let:"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:60
 msgid "Click Buy Now and pay using PayPal"
-msgstr "Klik på Køb nu og betale med PayPal"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:61
 msgid "Click Download & Install to download and install the extension"
-msgstr "Klik på Download & Installer for at hente og installere udvidelsen"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:62
 msgid ""
 "Thats it, options for your extension will be available in the menu on the "
 "left"
 msgstr ""
-"Det er det hele, indstillinger for din udvidelse vil være tilgængelig i "
-"menuen til venstre"
 
 #: Views/wp-backup-to-dropbox-premium.php:69
 msgid "100% money back guarantee"
-msgstr "100% tilfredshed eller pengene tilbage"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:86
 msgid "Name"
-msgstr "Navn"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:87
 msgid "Description"
-msgstr "Beskrivelse"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:88
 msgid "Price"
-msgstr "Pris"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:106
 msgid "Download & Install"
-msgstr "Hent og Installer"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:106
 msgid "Buy Now"
-msgstr "Køb nu"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-premium.php:115
 #, php-format
@@ -667,25 +626,21 @@ msgid ""
 "Each payment includes updates and support on a single website for one year. "
 "If you manage multiple websites please consider purchasing an %s."
 msgstr ""
-"Hver betaling omfatter opdateringer og support for en enkelt hjemmeside i et "
-"år. Hvis du administrere flere websteder kan du overveje at købe et %s."
 
 #: Views/wp-backup-to-dropbox-premium.php:115
 msgid "unlimited site subscription"
-msgstr "ubegrænset hjemmeside abonnement"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-progress.php:27
 msgid ""
 "You have not run a backup yet. When you do you will see a log of it here."
 msgstr ""
-"Du har ikke køre en backup endnu. Når du gør det, vil du se en log over det "
-"her."
 
 #: Views/wp-backup-to-dropbox-progress.php:40
 msgid "View uploaded files"
-msgstr "Vis uploadede filer"
+msgstr ""
 
 #: Views/wp-backup-to-dropbox-progress.php:43
 #, php-format
 msgid "Last modified: %s"
-msgstr "Sidst ændret: %s"
+msgstr ""

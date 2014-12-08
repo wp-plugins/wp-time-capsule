@@ -12,7 +12,7 @@ jQuery(document).ready(function ($) {
 	});
 	
 	jQuery(".theme-wrap .theme-update-message p a").on("click", function(e){
-		//console.log("moooooo");
+//		console.log("moooooo");
 		e.preventDefault();
 		e.stopImmediatePropagation();
 		if(jQuery(this).text() == 'update now')
@@ -22,6 +22,7 @@ jQuery(document).ready(function ($) {
 		}
 	});
 	
+        
 	jQuery(".update-nag a").on("click", function(e){
 		//console.log("blah above");
 		e.preventDefault();
@@ -82,6 +83,24 @@ jQuery(document).ready(function ($) {
 			}
 		}
 	});
+        
+        jQuery(".tablenav #doaction").on("click", function(e){
+		if((jQuery(this).val() == 'Apply')&&(jQuery('.bulkactions #bulk-action-selector-top').val() == "update-selected"))
+		{
+			if((tc_prevent_default_event != "undefined" && tc_prevent_default_event == 'yes') && (typeof current_update_action == "undefined")){
+				if(jQuery(this).prev("select").val() == "update-selected"){
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					//console.log("blah");
+					check_to_show_dialog(jQuery(this));
+				}
+			}
+			else if(typeof current_update_action != "undefined" && current_update_action == "no"){
+				delete current_update_action;
+			}
+		}
+	});
+        
 	
 	jQuery(".tablenav #doaction2").on("click", function(e){
 		if(jQuery(this).val() == 'Apply')
@@ -170,7 +189,7 @@ function show_is_backup_dialog_box_tc(obj, direct_backup){
 	jQuery(".wrap").append('<div id="dialog_content_id" style="display:none;"> <p> hidden cont. </p></div><a class="thickbox" style="display:none" href="#TB_inline?width=500&height=500&inlineId=dialog_content_id&modal=true"></a>');
 	
 	//store the update link in a global variable
-	this_update_link = obj.attr("href");
+	//this_update_link = obj.attr("href");
 	
 	var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><span class="dialog_close"></span><div class="pu_title">UPDATING ITEMS</div><div class="wcard clearfix" style="width:480px"><div class="l1">Do you want to backup your website before updating?</div>  <a class="btn_pri tc_backup_before_update" update_link='+obj.attr("href")+' >YES, BACKUP &amp; UPDATE</a><a class="btn_sec tc_no_backup " href='+obj.attr("href")+' >NO, JUST UPDATE</a> </div></div>';
 	
@@ -186,6 +205,7 @@ function show_is_backup_dialog_box_tc(obj, direct_backup){
 	
 	//registering the events
 	jQuery(".tc_backup_before_update").on("click", function(e){
+                this_update_link=obj.attr("href");
 		show_backup_progress_dialog(jQuery(this));
 	});
 	
@@ -282,6 +302,12 @@ function backup_progress_tc(){
 	}
 }
 
+function dialog_for_changeAccount(){
+    var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><span class="dialog_close"></span><div class="pu_title">Disconnect this account?</div><div class="wcard clearfix" style="width:480px"><div class="l1">The files in your dropbox account will not be affected.<br/>But all data in the plugin will be lost.</div><a class="btn_pri" id="yes_change_acc" onclick="yes_change_acc()">Yes. Let me connect another account.</a><a class="btn_sec" id="no_change" onclick="no_change()">Cancel</a></div></div>';
+    jQuery("#dialog_content_id").html(dialog_content);  //since it is the first call we are generating thickbox like this
+		jQuery(".thickbox").click();
+                styling_thickbox_tc('change_account');
+}
 function reload_backup_tc() {
 	//this function runs every 5 sec as long as there is a backup process running and also fills the progress bar
 	//jQuery('.files').hide();
@@ -296,16 +322,24 @@ function reload_backup_tc() {
 				
 				var this_text = '';
 				var progress_percent = 1;
+                                var totalfiles=0;
+                                var processedfiles=0;
 				if(typeof data['backup_progress'] != 'undefined'){
 					jQuery.each(data, function(k, v){
 						this_text_processed_files = v['processed_files'];
+                                                if (v['overall_files'] != null && v['overall_files'] !== undefined) {
+                                                    totalfiles = v['overall_files'];
+                                                }
+                                                if (v['processed_totcount'] != null && v['processed_totcount'] !== undefined) {
+                                                    processedfiles = v['processed_totcount'];
+                                                }
 						progress_percent = v['progress_percent'];
 					});
 				}
 				if(progress_percent * 100 >= 100){
 					progress_percent = 1;
 				}
-				//jQuery('.wcard.backup_progress_tc .progress_cont').parent().append('<div class="processed_hidden">'+this_text_processed_files+"file </div>"');
+				jQuery('.wcard.backup_progress_tc .progress_cont').html('Backing up your files... [ '+processedfiles+' / '+totalfiles+' ]');
 				jQuery('.wcard.backup_progress_tc .progress_bar').attr("style", "width:" + progress_percent * 100 + "%");
 				
 				//show laoding div in calendar box
@@ -358,6 +392,9 @@ function reload_backup_tc() {
 								}
 								else if(reg_dashboard_update == "Update Themes"){
 									jQuery(".upgrade #upgrade-themes").click();				//for continuing bulk theme update on dashboard page
+								}
+                                                                else if(reg_dashboard_update == "pluignBulkUpdate"){
+									jQuery(".tablenav #doaction").click();					//for continuing bulk plugin update on plugin page
 								}
 								else if(reg_dashboard_update == "pluignBulkUpdate"){
 									jQuery(".tablenav #doaction2").click();					//for continuing bulk plugin update on plugin page
@@ -423,6 +460,14 @@ function styling_thickbox_tc(styleType){
 		jQuery("#TB_ajaxContent").css("max-height", "322px");
 		jQuery("#TB_ajaxContent").css("height", "auto");
 	}
+        else if(styleType == 'change_account'){
+                jQuery("#TB_window").width("578px");
+                jQuery("#TB_ajaxContent").width("578px");
+                jQuery("#TB_ajaxContent").css("padding", "0px");
+		jQuery("#TB_ajaxContent").css("overflow", "hidden");
+		jQuery("#TB_ajaxContent").css("max-height", "500px");
+		jQuery("#TB_ajaxContent").css("height", "auto");
+        }
 	else
 	{
 		jQuery("#TB_window").width("791px");

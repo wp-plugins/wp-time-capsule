@@ -180,7 +180,7 @@ function restore_complete(){
 	exit;
 }
 
-function getCookie($name)
+function getTcCookie($name)
 {
 	$options_obj = WPTC_Factory::get('config');
 	
