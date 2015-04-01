@@ -39,7 +39,7 @@ $wpdb = new wpdb( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
 	$wpdb->prefix = $_REQUEST['wp_prefix'];
  }
 	
-//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----wpdb prefix------ ".var_export($wpdb->prefix,true)."\n",FILE_APPEND);
+////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----wpdb prefix------ ".var_export($wpdb->prefix,true)."\n",FILE_APPEND);
 
 //get all the POST fields
 $post_data = $_REQUEST;
@@ -222,7 +222,7 @@ function tc_database_restore($file_name){
 		# do same stuff with the $line
 	}
 	fclose($file); */
-	////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----lines------ ".var_export($lines,true)."\n",FILE_APPEND);
+	//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----lines------ ".var_export($lines,true)."\n",FILE_APPEND);
 	// Loop through each line
 	if(!empty($lines)){
 		$this_lines_count = 0;

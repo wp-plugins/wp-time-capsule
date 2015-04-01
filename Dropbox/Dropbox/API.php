@@ -625,7 +625,7 @@ class Dropbox_API
         if (extension_loaded('fileinfo')) {
             $finfo = new finfo(FILEINFO_MIME);
             if ($isFilename !== false) {
-                return $finfo->file($data);
+                return @$finfo->file($data);
             }
 
             return $finfo->buffer($data);

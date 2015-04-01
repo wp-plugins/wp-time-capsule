@@ -37,10 +37,14 @@ class WPTC_Extension_DefaultOutput extends WPTC_Extension_Base
     public function out($source, $file, $processed_file = null)
     {
         if ($this->error_count > self::MAX_ERRORS)
+        {
+            WPTC_Factory::get('logger')->log(sprintf(__("The backup is having trouble uploading files to Dropbox, it has failed %s times and is aborting the backup.", 'wptc'), self::MAX_ERRORS),'backup_error');
             throw new Exception(sprintf(__('The backup is having trouble uploading files to Dropbox, it has failed %s times and is aborting the backup.', 'wptc'), self::MAX_ERRORS));
-
-        if (!$this->dropbox)
+        }
+        if (!$this->dropbox){
+            WPTC_Factory::get('logger')->log(sprintf(__("The backup is having trouble uploading files to Dropbox, it has failed %s times and is aborting the backup.", 'wptc'), self::MAX_ERRORS),'backup_error');
             throw new Exception(__("Dropbox API not set"));
+        }
         $dropbox_path = $this->config->get_dropbox_path($source, $file, $this->root);
 		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----this dropboxx path------- ".var_export($dropbox_path,true)."\n",FILE_APPEND);
 		
@@ -96,12 +100,14 @@ class WPTC_Extension_DefaultOutput extends WPTC_Extension_Base
 	
 	public function drop_download($source, $file, $revision = null, $processed_file = null, $restore_single_file = null)
     {
-        if ($this->error_count > self::MAX_ERRORS)
+        if ($this->error_count > self::MAX_ERRORS){
+            WPTC_Factory::get('logger')->log(sprintf(__('The backup is having trouble downloading files to Dropbox, it has failed %s times and is aborting the backup.', 'wptc'), self::MAX_ERRORS),'restore_error');
             throw new Exception(sprintf(__('The backup is having trouble downloading files to Dropbox, it has failed %s times and is aborting the backup.', 'wptc'), self::MAX_ERRORS));
-
-        if (!$this->dropbox)
+        }
+        if (!$this->dropbox){
+            WPTC_Factory::get('logger')->log(__("Dropbox API not set"),'restore_error');
             throw new Exception(__("Dropbox API not set"));
-
+        }
         $dropbox_path = $this->config->get_dropbox_path($source, $file, $this->root);
 		//////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ---dropbox_file------ ".var_export($file,true)."\n",FILE_APPEND);
         try {
@@ -127,7 +133,7 @@ class WPTC_Extension_DefaultOutput extends WPTC_Extension_Base
 			}
 
         } catch (Exception $e) {
-            WPTC_Factory::get('logger')->log(sprintf(__("Error downloading '%s' to Dropbox: %s", 'wptc'), $file, strip_tags($e->getMessage())));
+            WPTC_Factory::get('logger')->log(sprintf(__("Error downloading '%s' to Dropbox: %s", 'wptc'), $file, strip_tags($e->getMessage())),'restore_error');
             $this->error_count++;
 			
 			//if there is any error we are showing it via ajax

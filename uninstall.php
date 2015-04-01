@@ -68,3 +68,9 @@ $wpdb->query("DROP TABLE IF EXISTS $table_name");
 
 $table_name = $wpdb->prefix . 'wptc_backup_names';
 $wpdb->query("DROP TABLE IF EXISTS $table_name");
+
+$table_name = $wpdb->prefix . 'wptc_current_process';
+$wpdb->query("DROP TABLE IF EXISTS $table_name");
+
+$table_name = $wpdb->prefix . 'wptc_activity_log';
+$wpdb->query("DROP TABLE IF EXISTS $table_name");

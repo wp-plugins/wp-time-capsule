@@ -22,18 +22,19 @@ class WPTC_Logger
 
     private $logFile = null;
 
-    public function log($msg, $files = null)
+    public function log($msg, $type = "",$action_id = "" )
     {
+        $this->set_log_now($type,$msg,$action_id);
 		//return true;
         //$fh = fopen($this->get_log_file(), 'a');
 
         //$msg = iconv('UTF-8', 'UTF-8//IGNORE', $msg);
-        //$log = sprintf("%s: %s", date('H:i:s', strtotime(current_time('mysql'))), $msg) . "\n";
+        $log = sprintf("%s@%s", date('Y-m-d H:i:s', strtotime(current_time('mysql'))), $msg) . "\n";
 
         /* if (!empty($files)) {
             $log .= "Uploaded Files:" . json_encode($files) . "\n";
         } */
-		@file_put_contents($this->get_log_file(), $msg, FILE_APPEND);
+		@file_put_contents($this->get_log_file(), $log, FILE_APPEND);
 		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde_log.php',"\n ----logging-------- ".var_export($log,true)."\n",FILE_APPEND);
 		
 		/* if (@fwrite($fh, $log) === false || @fclose($fh) === false) {
@@ -77,5 +78,26 @@ class WPTC_Logger
         }
 		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----returning a log file------- ".var_export($this->logFile,true)."\n",FILE_APPEND);
 		return $this->logFile;
+    }
+     
+    public function set_log_now($type,$msg,$action_id)
+    {
+        global $wpdb;
+        $current_time=time();
+        $LogData=  serialize(array('action'=>$type,'log_time'=>$current_time,'msg'=>$msg));
+        $DBLogArray=array('activated_plugin','deactivated_plugin','remove_currentacc','backup_start','backup_progress','backup_error','backup_complete', 'restore_start', 'restore_complete', 'restore_error');
+        if($action_id=="")
+        {
+            $action_id=null;
+        }
+        if($type!="")
+        {
+            if(in_array($type, $DBLogArray))
+            {
+                //insert log into DB
+                $wpdb->insert($wpdb->prefix.'wptc_activity_log',array('type' => $type,'log_data' => $LogData,'action_id'=>$action_id));
+                
+            }
+        }
     }
 }

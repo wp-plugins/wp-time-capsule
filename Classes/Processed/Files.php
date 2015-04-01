@@ -34,6 +34,10 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
     {
         return 'restored_files';
     }
+    
+    protected function getRevisionId() {
+        return 'revision_id';
+    }
 
     protected function getId()
     {
@@ -322,6 +326,7 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 		$this_count = 0;
 		foreach($all_days as $key => $value)
 		{
+                        asort($all_backup_id[$key]);
 			if($value < 2) $this_plural = ''; else $this_plural = 's';
 			$calendar_format_values[$this_count]['title'] = $value." Backup".$this_plural;
 			$calendar_format_values[$this_count]['start'] = $key;

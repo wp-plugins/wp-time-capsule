@@ -41,7 +41,11 @@ class WPTC_Processed_Copiedfiles extends WPTC_Processed_Base
         return 'file_id';
     }
 	
-	protected function getUploadMtime()
+    protected function getRevisionId() {
+        return 'file_id';
+    }
+    
+    protected function getUploadMtime()
     {
         return 'mtime_during_upload';
     }

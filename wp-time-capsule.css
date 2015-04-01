@@ -81,7 +81,7 @@
 
 #wptc #progress {
 	/* max-height: 400px; */
-	overflow-y: scroll;
+	/*overflow-y: scroll;*/
 	/* margin: -32px 0 10px 0; */
 	margin: 0px 0 10px 0;
 }
@@ -553,3 +553,96 @@
 	border-top-right-radius: 4px;
 }
 
+.row-wptc{
+    width:100%
+}
+.float-left{
+    width:27%;
+    float:left;
+    display:inline-block;
+}
+.float-right{
+    width:73%;
+    float:right;
+    display:inline-block;
+}
+.success_issue{
+    box-shadow: 0 0 2px #000;
+    border-radius: 4px;
+    padding: 17px;
+    background: #C3FFC3;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #008000;
+}
+.fail_issue{
+    box-shadow: 0px 0px 2px #000;
+    border-radius: 4px;
+    padding: 17px;
+    background: none repeat scroll 0% 0% #FDD7D7;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #D00;
+}
+.act-td{
+    border-bottom: 1px solid rgb(229, 229, 229);
+}
+.sch{
+    display:inline-block;
+}
+.week{
+    margin-left:1%;
+}
+.loader_strip_cl{
+    width: 220px;
+    height: 19px;
+    margin-left: 34%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.more_logs{
+    display:none;
+}
+.show_more{
+    cursor:pointer;
+}
+.highlightme {
+    -webkit-animation: fade 3s 1;
+    -moz-animation: fade 3s 1;
+    -o-animation: fade 3s 1;
+    animation: fade 3s 1;
+}
+ @-webkit-keyframes fade {
+ 0% {
+background-color: rgba(249,246,167,1);
+}
+ 100% {
+background-color: rgba(249,246,167,0);
+}
+}
+@-moz-keyframes fade {
+ 0% {
+background-color: rgba(249,246,167,1);
+}
+ 100% {
+background-color: rgba(249,246,167,0);
+}
+}
+@-o-keyframes fade {
+ 0% {
+background-color: rgba(249,246,167,1);
+}
+ 100% {
+background-color: rgba(249,246,167,0);
+}
+}
+@keyframes fade {
+ 0% {
+background-color: rgba(249,246,167,1);
+}
+ 100% {
+background-color: rgba(249,246,167,0);
+}
+}

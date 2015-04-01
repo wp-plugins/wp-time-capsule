@@ -22,7 +22,8 @@ $config = WPTC_Factory::get('config');
 $backup = new WPTC_BackupController();
 
 $backup->create_dump_dir();  			//creating backup folder in the beginning if its not there
-
+$schedule_backup_run=$config->get_option('schedule_backup_running');
+$schedule_backup = $config->get_option('schedule_backup');
 //Checking fresh backup 
 global $wpdb;
 $fcount=$wpdb->get_results( 'SELECT COUNT(*) as files FROM '.$wpdb->prefix.'wptc_processed_files' );
@@ -126,7 +127,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 		jQuery.post(ajaxurl, { action : 'stop_fresh_backup_tc' }, function(data) {
 			//call the reload function which tells the progress
 			//wtc_reload();
-			jQuery('#start_backup').val("Stop Backup");
+			jQuery('#start_backup').text("Stop Backup");
 			jQuery(this_obj).hide();
 			window.location = '<?php echo admin_url('?page=wp-time-capsule-monitor'); ?>';
 		});
@@ -246,9 +247,17 @@ if (array_key_exists('stop_backup', $_POST)) {
 	}
 	
 	function getThisDayBackups(backupIds){
+              
+                var loading = '<div class="dialog_cont" style="padding:2%"><div class="loaders"><div class="loader_strip"><div class="loader_strip_cl" style="background:url(<?php echo plugins_url('wp-time-capsule');?>/images/loader_line.gif)"></div></div></div></div>';
+                jQuery("#dialog_content_id").html(loading);
+                jQuery(".thickbox").click();
+                styling_thickbox_tc();
+                registerDialogBoxEventsTC();
+                
+                
 		//to show all the backup list when a particular date is clicked
 		jQuery.post(ajaxurl, { action : 'get_this_day_backups', data : backupIds }, function(data) {
-			
+			jQuery(".dialog_cont").remove();
 			jQuery("#dialog_content_id").html(data);
 			jQuery(".thickbox").click();
 			
@@ -301,7 +310,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 		});
 		
 		//UI actions for the file selection
-		jQuery(".toggle_files").on("click", function(){
+		jQuery(".toggle_files").on("click", function(e){
 			var par_obj = jQuery(this).closest(".single_group_backup_content");
 			if(!jQuery(par_obj).hasClass("open"))
 			{
@@ -321,6 +330,10 @@ if (array_key_exists('stop_backup', $_POST)) {
 				jQuery(".this_restore_point", par_obj).show();
 				jQuery(this).removeClass("selection_mode_on");
 			}
+                        e.stopImmediatePropagation();
+			styling_thickbox_tc("");
+                        return false;
+                       
 		});
 		
 		jQuery(".sub_tree_class_blah").on("click", function(){
@@ -553,6 +566,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 			//console.log("clicky");
 			if(typeof is_backup_started == 'undefined' || is_backup_started == false){					//for enabling dialog close on complete
 				tb_remove();
+                                backupclickProgress=false;
 			}
 		});
 		
@@ -955,11 +969,11 @@ if (array_key_exists('stop_backup', $_POST)) {
         wtc_reload();
 		
 		jQuery('#start_backup').on('click', function(){
-			if(jQuery(this).val() != 'Stop Backup'){
+			if(jQuery(this).text() != 'Stop Backup'){
 				is_backup_started = true;				//setting global variable for backup status
 				//console.log('backup starting');
 				//changing the button name
-				jQuery(this).val("Stop Backup");
+				jQuery(this).text("Stop Backup");
 				
 				//call the ajax function to perform the backup actions
 				jQuery.post(ajaxurl, { action : 'start_fresh_backup_tc' }, function(data) {
@@ -969,7 +983,7 @@ if (array_key_exists('stop_backup', $_POST)) {
 					show_backup_progress_dialog('', 'fresh');
                                         
                                         if(fresh=='yes'){
-                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p>Initial backup will take time, please wait and dont close the window</p></div>';
+                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p style="text-align: center; line-height: 24px;">This is your first backup. We now have to copy of all the files to your Dropbox account and is time-consuming. Successive backups will be instantaneous since they are incremental. <br>Please be patient and don’t close the window.</p></div>';
                                             jQuery(".backup_progress_tc").parent().append(inicontent);
                                         }
 					//call the name storing funciton to give this backup process a name 
@@ -985,9 +999,9 @@ if (array_key_exists('stop_backup', $_POST)) {
 		}); 
 		
 		jQuery('#stop_backup').on('click', function(){
-			if(jQuery(this).val() != 'Stop Backup'){
+			if(jQuery(this).text() != 'Stop Backup'){
 				//changing the button name
-				jQuery(this).val("Stop Backup");
+				jQuery(this).text("Stop Backup");
 				
 				//call the ajax function to perform the backup actions
 				jQuery.post(ajaxurl, { action : 'start_fresh_backup_tc' }, function(data) {
@@ -1011,6 +1025,15 @@ if (array_key_exists('stop_backup', $_POST)) {
 		<?php if (isset($started)): ?>
 		show_get_name_dialog_tc();
 		<?php endif; ?>
+                    
+                <?php if($schedule_backup_run){?>
+                    jQuery('#sch_backup').show();
+                <?php }
+                else{
+                ?>
+                    jQuery('#sch_backup').hide();
+                <?php } ?>        
+                        
     });
 </script>
 <?php 
@@ -1020,16 +1043,26 @@ if (array_key_exists('stop_backup', $_POST)) {
     
     <?php settings_errors(); ?>
 
-    <h3><?php _e('Backups', 'wptc'); ?></h3>
-	<form id="backup_to_dropbox_options" name="backup_to_dropbox_options" style="margin: -40px 0px 8px 85px;" action="admin.php?page=wp-time-capsule-monitor" method="post">
+    
+	<form id="backup_to_dropbox_options" name="backup_to_dropbox_options" action="admin.php?page=wp-time-capsule-monitor" method="post" style=" width: 100%;">
+            <h2 style="width: 13%; display: inline-block;"><?php _e('Backups', 'wptc'); ?>
         <?php if ($config->get_option('in_progress') || isset($started)): ?>
-            <input type="button" id="stop_backup" name="stop_backup" class="button-primary" value="<?php _e('Stop Backup', 'wptc'); ?>">
+            <a id="stop_backup" name="stop_backup" class="add-new-h2" style="cursor:pointer"><?php _e('Stop Backup', 'wptc'); ?></a>
         <?php else: ?>
-            <input type="button" id="start_backup" name="start_backup" class="button-primary" value="<?php _e('Backup Now', 'wptc'); ?>">
+            <a id="start_backup" name="start_backup" class="add-new-h2" style="cursor:pointer"><?php _e('Backup Now', 'wptc'); ?></a>
         <?php endif; ?>
-
+            <div id="sch_backup" style="display: inline-block; font-size: 12px; color: red; padding: 0% 1%;">Currently scheduled backup running</div>
+            </h2>
+            <?php if($schedule_backup=='off'){ ?>
+            <a style="display: inline-block" href="<?php echo admin_url().'admin.php?page=wp-time-capsule&highlight=schedule'?>">Turn on scheduled backup</a>
+            <?php } ?>
         <?php wp_nonce_field('wordpress_time_capsule_monitor_stop'); ?>
+            <!--<a style="float: right;display: inline-block;margin-top:8px;padding-left:13px;" href="https://wptimecapsule.uservoice.com/" target="_blank">Get support</a>-->
+            <a style="float: right;display: inline-block;margin-top:8px" href="https://wptimecapsule.uservoice.com/" target="_blank">Suggest a Feature</a>
+          
+<!--            <a class="dashicons-before dashicons-backup" id="report_issue" style="float: right; color: rgb(196, 63, 63); font-style: italic; text-decoration: none; padding: 5px; border-radius: 25px;" href="#">Report issue</a>-->
     </form>
+
     <div id="progress">
         <div id="circleG">
             <div id="circleG_1" class="circleG"></div>

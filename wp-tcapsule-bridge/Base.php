@@ -58,6 +58,8 @@ abstract class WPTC_Processed_Base
 
     abstract protected function getId();
 	
+     abstract protected function getRevisionId();
+     
 	abstract protected function getFileId();					//file column is not unique now .. so we should update using file_id 
 	
 	abstract protected function getUploadMtime();

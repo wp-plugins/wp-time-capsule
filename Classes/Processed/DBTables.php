@@ -41,8 +41,12 @@ class WPTC_Processed_DBTables extends WPTC_Processed_Base
     {
         return 'name';
     }
-	
-	protected function getFileId()
+    
+    protected function getRevisionId() {
+        return 'name';
+    }
+
+        protected function getFileId()
     {
         return 'file_id';
     }

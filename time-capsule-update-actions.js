@@ -1,3 +1,4 @@
+backupclickProgress=false;
 jQuery(document).ready(function ($) {
 	get_and_store_before_backup_var();
 	
@@ -6,13 +7,13 @@ jQuery(document).ready(function ($) {
 		e.stopImmediatePropagation();
 		if(jQuery(this).text() == 'update now')
 		{
-			//console.log("blah");
+//			console.log("blah");
 			check_to_show_dialog(jQuery(this));
 		}
 	});
-	
-	jQuery(".theme-wrap .theme-update-message p a").on("click", function(e){
-//		console.log("moooooo");
+
+	jQuery(document.body).on("click", ".theme-wrap .theme-update-message p a", function(e){
+		//console.log("moooooo");
 		e.preventDefault();
 		e.stopImmediatePropagation();
 		if(jQuery(this).text() == 'update now')
@@ -22,17 +23,16 @@ jQuery(document).ready(function ($) {
 		}
 	});
 	
-        
-	jQuery(".update-nag a").on("click", function(e){
-		//console.log("blah above");
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		if(jQuery(this).text() == 'Please update now')
-		{
-			//console.log("blah");
-			check_to_show_dialog(jQuery(this));
-		}
-	});
+//	jQuery(".update-nag a").on("click", function(e){
+//		console.log("blah above");
+//		e.preventDefault();
+//		e.stopImmediatePropagation();
+//		if(jQuery(this).text() == 'Please update now')
+//		{
+//			//console.log("blah");
+//			check_to_show_dialog(jQuery(this));
+//		}
+//	});
 	
 	jQuery(".theme-screenshot").on("click", function(e){
 		//console.log('clicking theme screenshot');
@@ -87,6 +87,7 @@ jQuery(document).ready(function ($) {
         jQuery(".tablenav #doaction").on("click", function(e){
 		if((jQuery(this).val() == 'Apply')&&(jQuery('.bulkactions #bulk-action-selector-top').val() == "update-selected"))
 		{
+                        reg_dashboard_update = 'pluignBulkUpdatePage';
 			if((tc_prevent_default_event != "undefined" && tc_prevent_default_event == 'yes') && (typeof current_update_action == "undefined")){
 				if(jQuery(this).prev("select").val() == "update-selected"){
 					e.preventDefault();
@@ -140,6 +141,76 @@ jQuery(document).ready(function ($) {
 		}
 	});
 	
+        jQuery("#report_issue").on("click", function(e){
+                if(jQuery(this).text() == 'Report issue')
+		{
+			e.preventDefault();
+			e.stopImmediatePropagation();
+                        issue_repoting_form();
+                       
+//			check_to_show_dialog(jQuery(this));
+		}
+});
+        jQuery("#form_report_close").live("click", function(){
+			tb_remove();
+	});
+        
+        jQuery(".dialog_close").live("click", function(){
+			tb_remove();
+                        if(backupclickProgress)
+                        {
+                            backupclickProgress=false;
+                        }
+	});
+        
+        jQuery("#send_issue").live("click", function(){
+            var issueForm=jQuery("#TB_window form").serializeArray();
+            if((issueForm[0]['value']=="")&&(issueForm[1]['value']=="")){
+                $("input[name='uname']").css("box-shadow", "0px 0px 2px #FA1818");
+                $("input[name='title']").css("box-shadow", "0px 0px 2px #FA1818");
+            }
+            else if(issueForm[0]['value']==""){
+                 $("input[name='uname']").css("box-shadow", "0px 0px 2px #FA1818");
+            }
+            else if(issueForm[1]['value']==""){
+                 $("input[name='uname']").css("box-shadow", "0px 0px 2px #028202");
+                 $("input[name='title']").css("box-shadow", "0px 0px 2px #FA1818");
+            }
+            else{
+                $("input[name='uname']").css("box-shadow", "0px 0px 2px #028202");
+                $("input[name='title']").css("box-shadow", "0px 0px 2px #028202");
+                sendWTCIssueReport(issueForm);
+        }
+        });
+        
+        jQuery("#cancel_issue").live("click", function(){
+            		tb_remove();
+        });
+        
+        jQuery(".report_issue").live('click',function(e){
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            var log_id=$(this).attr('id');
+            if(log_id!=""&&log_id!='undefined')
+            {
+            var rdata={log_id:log_id}
+            jQuery.post(ajaxurl, { action : 'get_issue_report_specific', data : rdata }, function(data) {
+                var data=jQuery.parseJSON(data);
+                var form_content='<div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-left">E-mail</div><div class="float-right"><input type="text" style="width:96%" name="cemail" value="'+data.cemail+'"></div></div><div class=row-wptc style="padding: 0 0 3px 0;height: 132px;"><div class="float-left">Description</div><div class="float-right" style=""><textarea cols="37" rows="5" name="desc"></textarea></div></div><div class="row-wptc" style="padding: 0 0 3px 0;" ><div class="float-right" style="padding: 0 0 9px 0;">The report and other logs of the task will be sent.</div><input type="hidden" name="issuedata" id="panelHistoryContent" value=\''+data.idata+'\'></div><div class="row-wptc" style="padding: 0 0 49px 0;"><div class="float-right"><input id="send_issue" class="button button-primary" type="button" value="Send"><input id="cancel_issue" style="margin-left: 3%;" class="button button-primary" type="button" value="Cancel"></div></div>';
+                var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" id="form_report_close"></span><div class="pu_title">Report an Issue</div><form name="issue_form" id="issue_form">'+form_content+'</form></div>';
+                jQuery("#dialog_content_id").html(dialog_content); 
+                jQuery(".thickbox").click();
+                styling_thickbox_tc('report_issue');
+            });
+            }
+        });
+        jQuery("#clear_log").on('click',function(){
+            var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><span class="dialog_close"></span><div class="pu_title">Delete Confirmation</div><div class="wcard clearfix" style="width:480px"><div class="l1">Are you sure you want to permanently delete the logs?</div><a style="margin-left: 14%;" class="btn_pri" id="yes_del_log" onclick="yes_delete_logs()">Yes. Delete All Logs</a><a class="btn_sec" id="cancel_issue">Cancel</a></div></div>';
+    jQuery("#dialog_content_id").html(dialog_content);  //since it is the first call we are generating thickbox like this
+		jQuery(".thickbox").click();
+                styling_thickbox_tc('change_account');
+        });
+	
 });
 
 function get_and_store_before_backup_var(){
@@ -170,6 +241,12 @@ function check_to_show_dialog(obj){
 					//jQuery(".tc_backup_before_update").click();
 					show_backup_progress_dialog(obj, '');
 				}
+                                if(data['before_backup'] == 'no')
+                                {
+                                    if((typeof obj.attr("href") != 'undefined') && obj.attr("href") != ''){
+                                        window.location = obj.attr("href");
+                                    }
+                                }
 			}
 		});
 	}
@@ -189,8 +266,9 @@ function show_is_backup_dialog_box_tc(obj, direct_backup){
 	jQuery(".wrap").append('<div id="dialog_content_id" style="display:none;"> <p> hidden cont. </p></div><a class="thickbox" style="display:none" href="#TB_inline?width=500&height=500&inlineId=dialog_content_id&modal=true"></a>');
 	
 	//store the update link in a global variable
-	//this_update_link = obj.attr("href");
-	
+        if(obj.attr("href")!='undefined'){
+	this_update_link = obj.attr("href");
+        }
 	var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><span class="dialog_close"></span><div class="pu_title">UPDATING ITEMS</div><div class="wcard clearfix" style="width:480px"><div class="l1">Do you want to backup your website before updating?</div>  <a class="btn_pri tc_backup_before_update" update_link='+obj.attr("href")+' >YES, BACKUP &amp; UPDATE</a><a class="btn_sec tc_no_backup " href='+obj.attr("href")+' >NO, JUST UPDATE</a> </div></div>';
 	
 	//thick box
@@ -365,16 +443,18 @@ function reload_backup_tc() {
 						clearTimeout(reload_backup_tc_timeout);
 						jQuery('.wcard.backup_progress_tc .progress_bar').attr("style", "width:100%");
 						jQuery('.wcard.backup_progress_tc .progress_cont').text('Backup Completed');
-						
 						//changing the button back to Backup Now
 						jQuery("#start_backup").text("Backup Now");
 						jQuery("#stop_backup").text("Backup Now");
+                                                if(jQuery("#start_backup").length > 0)
+                                                {
+                                                    setTimeout("reload_monitor_page()", 3000);
+                                                }
 						//jQuery(".dialog_close").show();
 						//var this_html = '<div class="notif s">Yaay! Your site is backed up. :)</div>';
 						//jQuery("#TB_ajaxContent").html(this_html);
 						is_backup_completed = true;						//setting global variable for backup completing status; used for dialog box close
 						is_backup_started = false;
-						
 						if(typeof this_update_link != 'undefined')
 						{
 							window.location = this_update_link;
@@ -393,7 +473,7 @@ function reload_backup_tc() {
 								else if(reg_dashboard_update == "Update Themes"){
 									jQuery(".upgrade #upgrade-themes").click();				//for continuing bulk theme update on dashboard page
 								}
-                                                                else if(reg_dashboard_update == "pluignBulkUpdate"){
+                                                                else if(reg_dashboard_update == "pluignBulkUpdatePage"){
 									jQuery(".tablenav #doaction").click();					//for continuing bulk plugin update on plugin page
 								}
 								else if(reg_dashboard_update == "pluignBulkUpdate"){
@@ -460,12 +540,20 @@ function styling_thickbox_tc(styleType){
 		jQuery("#TB_ajaxContent").css("max-height", "322px");
 		jQuery("#TB_ajaxContent").css("height", "auto");
 	}
-        else if(styleType == 'change_account'){
+	else if(styleType == 'change_account'){
                 jQuery("#TB_window").width("578px");
                 jQuery("#TB_ajaxContent").width("578px");
                 jQuery("#TB_ajaxContent").css("padding", "0px");
 		jQuery("#TB_ajaxContent").css("overflow", "hidden");
 		jQuery("#TB_ajaxContent").css("max-height", "500px");
+		jQuery("#TB_ajaxContent").css("height", "auto");
+    }
+        else if(styleType == 'report_issue'){
+                jQuery("#TB_window").width("518px");
+		jQuery("#TB_ajaxContent").width("518px");
+		jQuery("#TB_ajaxContent").css("padding", "0px");
+		jQuery("#TB_ajaxContent").css("overflow", "hidden");
+		jQuery("#TB_ajaxContent").css("max-height", "600px");
 		jQuery("#TB_ajaxContent").css("height", "auto");
         }
 	else
@@ -486,4 +574,64 @@ function styling_thickbox_tc(styleType){
 		var win_height = (jQuery("#TB_ajaxContent").height() / 2) + "px";
 		jQuery("#TB_window").css("margin-top", "-" + win_height);
 	} */
+}
+
+function issue_repoting_form(){
+    jQuery.post(ajaxurl, { action : 'get_issue_report_data' }, function(data) {
+    var data=jQuery.parseJSON(data);
+    var form_content='<div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-left">Name</div><div class="float-right"><input type="text" style="width:96%" name="uname" value="'+data.lname+'"></div></div><div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-left">Title</div><div class="float-right"><input type="text" style="width:96%" name="title"></div></div><div class="row-wptc" style="height: 132px;"><div class="float-left">Issue Data</div><div class="float-right"><textarea name="issuedata" id="panelHistoryContent" cols="37" rows="5" readonly class="disabled">' + data.idata+ '</textarea></div></div><div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-right"><input id="send_issue" class="button button-primary" type="button" value="Send"><input id="cancel_issue" style="margin-left: 3%;" class="button button-primary" type="button" value="Cancel"></div></div>';
+    var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" id="form_report_close"></span><div class="pu_title">Report an Issue</div><form name="issue_form" id="issue_form">'+form_content+'</form></div>';
+    jQuery("#dialog_content_id").html(dialog_content); 
+    jQuery(".thickbox").click();
+    styling_thickbox_tc('report_issue');
+});
+    
+}
+
+function sendWTCIssueReport(issueData)
+{
+    console.log(issueData);
+    var email = issueData[0]['value'];
+    var desc = issueData[1]['value'];
+    var issue = issueData[2]['value'];
+    var idata = {
+            'email' : email,
+            'desc' : desc,
+       'issue_data' : issue
+        };
+    jQuery.post(ajaxurl, { action: 'send_wtc_issue_report',data:idata}, function(response) {
+    if(response=="sent")
+    {
+        jQuery("#issue_form").html("");
+        jQuery("#issue_form").html("<div class='success_issue'>Issue submitted successfully<div>");
+    }
+    else
+    {
+        jQuery("#issue_form").html("");
+        jQuery("#issue_form").html("<div class='fail_issue'>Issue sending failed.Try after sometime<div>");
+    }  
+     });
+}
+
+function yes_delete_logs(){
+    jQuery.post(ajaxurl, { action: 'clear_wptc_logs'}, function(response) {
+    if(response=="yes")
+    {
+        jQuery(".this_modal_div").html("");
+        jQuery(".this_modal_div").css('padding','26px 34px 26px');
+        jQuery(".this_modal_div").html("<div class='success_issue'>Log's are Removed<div>");
+        location.reload();
+    }
+    else
+    {
+        jQuery(".this_modal_div").html("");
+        jQuery(".this_modal_div").css('padding','26px 34px 26px');
+        jQuery(".this_modal_div").html("<div style='margin-top:10px' class='fail_issue'>Failed to remove logs from Database<div>");
+    }  
+     });
+}
+
+function reload_monitor_page()
+{
+    location.reload();
 }

@@ -63,7 +63,7 @@ class WPTC_BackupController
         $this->processed_file_count = $processed_files->get_processed_files_count();
 
         $last_percent = 0;
-file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called------- \n",FILE_APPEND);
+//        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called------- \n",FILE_APPEND);
         if (file_exists($path)) {
             $source = realpath($path);
             
@@ -86,7 +86,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
                          global $wpdb;
                         //Getting files from iterator and insert into database
                     if (!$this->config->get_option('getfileslist')) {
-                        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----set files------- \n",FILE_APPEND);
+//                        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----set files------- \n",FILE_APPEND);
                             $this->iteratorIntoDb($TFiles);
                     }  
                     
@@ -137,7 +137,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
                             }
 
                             if ($percent_done > $last_percent) {
-                                $msg .= ' ' . sprintf(__('Approximately %s%% complete.', 'wptc'), $percent_done);
+                                $msg .= sprintf(__('Approximately %s%% complete.', 'wptc'), $percent_done);
                                 $last_percent = $percent_done;
                             }
                         }
@@ -276,7 +276,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 					
                 }
 				else{
-                                        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----not a file------ ".$file,FILE_APPEND);
+//                                        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----not a file------ ".$file,FILE_APPEND);
 					$ignored_files_count += 1;
                                         $this->writeStatusofFile($fid,'S');
 				}
@@ -292,7 +292,10 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 
     public function execute()
     {
-		$manager = WPTC_Extension_Manager::construct();
+        $options_obj = WPTC_Factory::get('config');
+        $contents=@unserialize($options_obj->get_option('this_cookie'));
+        $backup_id=$contents['backupID'];
+	$manager = WPTC_Extension_Manager::construct();
         $logger = WPTC_Factory::get('logger');
         $dbBackup = WPTC_Factory::get('databaseBackup');
 
@@ -302,7 +305,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
         try {
 
             if (!$this->dropbox->is_authorized()) {
-                $logger->log(__('Your Dropbox account is not authorized yet.', 'wptc'));
+                $logger->log(__('Your Dropbox account is not authorized yet.', 'wptc'),'backup_error',$backup_id);
 
                 return;
             }
@@ -311,17 +314,17 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
             $dbStatus = $dbBackup->get_status();
 			if ($dbStatus == WPTC_DatabaseBackup::NOT_STARTED) {
                 if ($dbStatus == WPTC_DatabaseBackup::IN_PROGRESS) {
-                    $logger->log(__('Resuming SQL backup.', 'wptc'));
+                    $logger->log(__('Resuming SQL backup.', 'wptc'),'backup_progress',$backup_id);
                 } else {
-                    $logger->log(__('Starting SQL backup.', 'wptc'));
+                    $logger->log(__('Starting SQL backup.', 'wptc'),'backup_progress',$backup_id);
                 }
 
                 $dbBackup->execute();
 
-                $logger->log(__('SQL backup complete. Starting file backup.', 'wptc'));
+                $logger->log(__('SQL backup complete. Starting file backup.', 'wptc'),'backup_progress',$backup_id);
             }
             $timetaken=  microtime(true)-$start;
-            file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php','time Taken for db'.$timetaken,FILE_APPEND);
+//            file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php','time Taken for db'.$timetaken,FILE_APPEND);
               $start=  microtime(true);
             if ($this->output->start()) {
                 $home_path=get_tcsanitized_home_path();
@@ -362,17 +365,17 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
                 $this->config->set_option('total_file_count', $this->processed_file_count);
             }
             $timetaken=  microtime(true)-$start;
-            file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php','time Taken for file'.$timetaken,FILE_APPEND);
+//            file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php','time Taken for file'.$timetaken,FILE_APPEND);
 			//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----going to go inside complete------ \n",FILE_APPEND);
             $manager->complete();
-			
+            $this->config->set_option('last_process_restore',false);
             //Update log file with stats
-            $logger->log(__('Backup complete.', 'wptc'));
-            $logger->log(sprintf(__('A total of %s files were processed.', 'wptc'), $this->processed_file_count));
+            $logger->log(__('Backup complete.', 'wptc'),'backup_complete',$backup_id);
+            $logger->log(sprintf(__('A total of %s files were processed.', 'wptc'), $this->processed_file_count),'backup_complete',$backup_id);
             $logger->log(sprintf(
                 __('A total of %dMB of memory was used to complete this backup.', 'wptc'),
                 (memory_get_usage(true) / 1048576)
-            ));
+            ),'backup_complete',$backup_id);
 
             //Process the log file using the default backup output
             $root = false;
@@ -394,9 +397,9 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 
         } catch (Exception $e) {
             if ($e->getMessage() == 'Unauthorized') {
-                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wptc'));
+                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wptc'),'backup_error',$backup_id);
             } else {
-                $logger->log(__('A fatal error occured: ', 'wptc') . $e->getMessage());
+                $logger->log(__('A fatal error occured: ', 'wptc') . $e->getMessage(),'backup_error',$backup_id);
             }
 
             $manager->failure();
@@ -427,7 +430,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
         $this->processed_file_count = $processed_files->get_file_count();
 
         $last_percent = 0;
-		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ------db COMMAND EXECUTED below to get files to be restored-------- \n",FILE_APPEND);
+		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ------db COMMAND EXECUTED below to get files to be restored-------- \n",FILE_APPEND);
 		if(true)
 		{
 			//we might wanna add any condition to avoid getting all files list again ... if we are doing bridge copy
@@ -516,15 +519,15 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 
         $this->config->set_time_limit();
         $this->config->set_memory_limit();
-
+        $restore_action_id = $this->config->get_option('restore_action_id');
         try {
 
             if (!$this->dropbox->is_authorized()) {
-                $logger->log(__('Your Dropbox account is not authorized yet.', 'wptc'));
+                $logger->log(__('Your Dropbox account is not authorized yet.', 'wptc'),'restore_error',$restore_action_id);
 
                 return;
             }
-
+//            $logger->log(__('Restore in Progress.', 'wptc'),'restore_start');
             if ($this->output->start()) {
 			
 				if(true)
@@ -541,13 +544,13 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
             //$manager->complete();
 
             //Update log file with stats
-            $logger->log(__('Restore complete.', 'wptc'));
-            $logger->log(sprintf(__('A total of %s files were processed.', 'wptc'), $this->processed_file_count));
+            $this->config->set_option('last_process_restore',true);
+            $logger->log(__('Restore complete.', 'wptc'),'restore_complete',$restore_action_id);
+            $logger->log(sprintf(__('A total of %s files were processed.', 'wptc'), $this->processed_file_count),'restore_complete',$restore_action_id);
             $logger->log(sprintf(
-                __('A total of %dMB of memory was used to complete this backup.', 'wptc'),
+                __('A total of %dMB of memory was used to complete this restore.', 'wptc'),
                 (memory_get_usage(true) / 1048576)
-            ));
-
+            ),'restore_complete',$restore_action_id);
             //Process the log file using the default backup output
             $root = false;
             if (get_class($this->output) != 'WPTC_Extension_DefaultOutput') {
@@ -556,7 +559,8 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
             }
 
             //$this->output->set_root($root)->out(get_tcsanitized_home_path(), $logger->get_log_file());				//manual
-			if( !$this->config->get_option('chunked') )			//if chunked download is not going ; or if bridge copy is not going do this completion step.
+                        $check_chunked_alive = $this->Chunked_download_check();
+			if( !$this->config->get_option('chunked') && !$check_chunked_alive )			//if chunked download is not going ; or if bridge copy is not going do this completion step.
 			{
 				$this->config
 					->complete('restore')
@@ -576,9 +580,9 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 			}
         } catch (Exception $e) {
             if ($e->getMessage() == 'Unauthorized') {
-                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wptc'));
+                $logger->log(__('The plugin is no longer authorized with Dropbox.', 'wptc'),'restore_error',$restore_action_id);
             } else {
-                $logger->log(__('A fatal error occured: ', 'wptc') . $e->getMessage());
+                $logger->log(__('A fatal error occured: ', 'wptc') . $e->getMessage(),'restore_error',$restore_action_id);
             }
 
             $manager->failure();
@@ -809,7 +813,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 	public function restore_now($files_to_restore)
     {
 		//this is the initial step ; this function will do the deletion of future files if needed or it ll get the respective revision id and then it ll appened it to the files to be restored array
-		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----calling restore_now()------- \n",FILE_APPEND);
+//		file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',var_export($files_to_restore,true)."\n",FILE_APPEND);
 		//add_files_for_restoring()			//manual
 		if(!empty($files_to_restore))
 		{
@@ -826,7 +830,7 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 						//return error message if any
 					}
 			}
-			
+			global $wpdb;
 			//truncating the database
 			$processed_files = WPTC_Factory::get('processed-restoredfiles',true);
 			$processed_files->truncate();
@@ -834,7 +838,6 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 			$past_and_future_files_restore = array();
 			$future_files_restore = array();
 			$past_files_restore = array();
-			
 			//do the deletion part first;
 			$cur_res_b_id = $this->config->get_option("cur_res_b_id");
 			if(!empty($cur_res_b_id)){
@@ -842,8 +845,12 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 				//get all the future files to be deleted or restore to previous thing
 				$future_delete_files = $processed_files->get_future_delete_files($cur_res_b_id);
 				$past_replace_files = $processed_files->get_past_replace_files($cur_res_b_id);
-				//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----future_delete_files------ ".var_export($future_delete_files,true)."\n",FILE_APPEND);
-				
+                                $unknown=$this->config->get_option("unknown_files_delete");
+                                if($unknown==1){
+                                    $all_processed_files=$processed_files->get_all_processed_files();
+                                    $this->delete_unknown_future_files($all_processed_files);
+                                }
+
 				//get the revsion id for the future files and also the folders involved;
 				$this_revisions = array();
 				$folders_involved = array();
@@ -923,6 +930,10 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 							$is_skip = true;
 						}
 					}
+                                        if(strpos($key, 'wptc-secret') !== false)
+                                        {
+                                            $is_skip=true;
+                                        }
 					if($is_skip == false){
 						if(empty($value[0]->revision_id)){
 							unset($this_past_replace_revisions[$key]);
@@ -954,14 +965,80 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
 			$processed_files->add_files_for_restoring($total_files_to_restore);
 			
 			execute_tcdrobox_restore();					//since we are using a manual ajax function
-		   /*  if (defined('WPTC_TEST_MODE')) {
-				execute_tcdrobox_restore();
-			} else {
-				wp_schedule_single_event(time(), 'execute_instant_dropbox_restore');
-			} */
-		}
+//		    if (defined('WPTC_TEST_MODE')) {
+//				execute_tcdrobox_restore();
+//			} else {
+//				wp_schedule_single_event(time(), 'execute_instant_dropbox_restore');
+//			}
+		} 
     }
-	
+	public function delete_unknown_future_files($all_processed_files)
+        {
+            global $wp_filesystem;
+            //Get the known files (backup done files ) and eliminate the known value's in unknown array
+            $homepath=get_tcsanitized_home_path();
+            $DirIter = new RecursiveDirectoryIterator($homepath, RecursiveDirectoryIterator::SKIP_DOTS);
+            $FileIter = new RecursiveIteratorIterator($DirIter, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
+            foreach($all_processed_files as $value)
+            {
+                $all_processed_arr[] = $value[0];
+            }
+            foreach($FileIter as $key => $file)
+            {
+                $current_file=$file->getPathname();
+                if(in_array($current_file,$all_processed_arr))
+                {
+                    //echo $current_file.'is known skipped/n';
+                }
+                else
+                {
+                    //echo $current_file.'is unknown/n';
+                    $needtodelete[]=$current_file;
+                }
+            }
+            if(count($needtodelete)>0){
+            foreach ($needtodelete as $val)
+            {
+                if(file_exists($val)){
+                    if(is_dir($val)){
+                        $RmDirList[]=$val;
+                    }
+                    else{
+                        $is_skip=false;
+                        if (strpos($val,'wp-time-capsule') !== false||strpos($val,'tCapsule') !== false||strpos($val,'error_log') !== false){
+                            $is_skip=true;
+                        }
+                       if(!$is_skip){
+                            $wp_filesystem->delete($val);
+                       }
+                       else
+                       {
+                           $dfiles[]=$val;
+                       }
+                    }
+                }
+            }
+            
+            //remove empty directories
+            usort($RmDirList,'lensort');
+            foreach($RmDirList as $val)
+            {
+                if(!(strpos($val,'wp-time-capsule') !== false||strpos($val,'tCapsule') !== false||strpos($val,'wp-tcapsule') !== false))
+                {
+                if(file_exists($val)){
+                    $MainDir=scandir($val);
+                    //dir count is 2 then folder is empty we can remove that folder
+                    if(count($MainDir) == 2)
+                    {
+                        $wp_filesystem->delete($val);
+                        $deleted[]=$val;
+                    }
+                    }
+                }
+                }
+            }
+          
+        }
 	public function delete_empty_folders($this_folder = null, $prev_dir_deleted_count = 0){
 		//this function will list out all the folders and files and check if no directories files are present; if there are no files then it ll delete that folder;
 		global $wp_filesystem;
@@ -1077,11 +1154,18 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
         
         //delete backup history and data
         global $wpdb;
-
+        $logger = WPTC_Factory::get('logger');
+        
         $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_processed_dbtables`");
         $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_processed_files`");
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_processed_restored_files`");
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_backup_names`");
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_activity_log`");
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_current_process`");
+        
         $this->config->set_option('in_progress', 0);
         $this->config->set_option('is_running', 0);
+        $logger->log('Current Account was Removed','remove_currentacc');
     }
     public function writeStatusofFile($id,$status){
         global $wpdb;
@@ -1143,4 +1227,108 @@ file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called-----
                             }
                             $this->config->set_option('getfileslist',1);
     }
+    public function WTCreportIssue($id=null){
+        global $wpdb;
+        if($id==null){
+            $logger = WPTC_Factory::get('logger');
+            $logs=$logger->get_log();
+            if($logs&&!empty($logs))
+            {
+                $report=array();
+                foreach($logs as $log)
+                {
+                    $record=explode('@',$log);
+                    $Recordtime=new DateTime($record[0]);
+                    $Today = new DateTime(date('Y-m-d 00:00:00'));
+                    if($Recordtime>$Today){
+                    $report[]=$record;
+                    }
+                }
+
+            }
+        }
+        else
+        {
+            
+            //Get the action id
+            $specficlog=$wpdb->get_row( 'SELECT * FROM '.$wpdb->prefix.'wptc_activity_log WHERE id = '.$id, OBJECT );
+            if($specficlog)
+            {
+                if($specficlog->action_id!='')
+                {
+                    //Getting all logs relate with this action id
+                    $action_log=$wpdb->get_results( 'SELECT * FROM '.$wpdb->prefix.'wptc_activity_log WHERE action_id = '.$specficlog->action_id, OBJECT );
+                    if(count($action_log)>0){
+                        foreach ($action_log as $all)
+                        {
+                            $report[]=unserialize($all->log_data);
+                        }
+                    }
+                    else
+                    {
+                        $report = unserialize($specficlog->log_data);
+                    }
+                }
+                else
+                {
+                    $report = unserialize($specficlog->log_data);
+                }
+                
+            }
+//            return json_encode($specficlog);
+        }
+        $reportIssue = array();
+      
+	$reportIssue['reportTime'] = time();
+        $reportIssue['log']=$report;
+        
+        
+        $current_user = wp_get_current_user();
+        $result['fname'] = $current_user->user_firstname;
+        $result['lname'] = $current_user->user_lastname;
+        $result['cemail'] = $current_user->user_email;
+        $result['admin_email'] = get_option('admin_email');
+        $result['idata'] = serialize($reportIssue);
+        return json_encode($result);
+    }
+    public function WTCGetAnonymousData(){
+        global $wpdb;
+        $anonymous=array();
+        $anonymous['server']['PHP_VERSION'] 	= phpversion();
+	$anonymous['server']['PHP_CURL_VERSION']= curl_version();
+	$anonymous['server']['PHP_WITH_OPEN_SSL'] = function_exists('openssl_verify');
+	$anonymous['server']['PHP_MAX_EXECUTION_TIME'] =  ini_get('max_execution_time');
+	$anonymous['server']['MYSQL_VERSION']= $wpdb->get_var("select version() as V");
+	$anonymous['server']['OS'] =  php_uname('s');
+	$anonymous['server']['OSVersion'] =  php_uname('v');
+	$anonymous['server']['Machine'] =  php_uname('m');
+	
+	$anonymous['server']['PHPDisabledFunctions'] = explode(',', ini_get('disable_functions'));	
+	array_walk($anonymous['server']['PHPDisabledFunctions'], 'trimValue');
+	
+	$anonymous['server']['PHPDisabledClasses'] = explode(',', ini_get('disable_classes'));	
+	array_walk($anonymous['server']['PHPDisabledClasses'], 'trimValue');
+	
+	$anonymous['browser'] = $_SERVER['HTTP_USER_AGENT'];
+        
+        return $anonymous;
+    }
+    
+    //Checking the chunked download is in progress or completed 
+    public function Chunked_download_check(){
+        global $wpdb;
+        $unfinished_downloads=$wpdb->get_var( 'SELECT COUNT(*) FROM `'.$wpdb->prefix.'wptc_processed_restored_files` WHERE `uploaded_file_size`!=`offset`  AND `uploaded_file_size` > 4024000');
+        if($unfinished_downloads > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+}
+function lensort($a,$b){
+    return strlen($b)-strlen($a);
 }

@@ -250,9 +250,11 @@ class WPTC_Config
         //$processed->truncate();
         $this->set_option('getfileslist', false);
         $this->set_option('in_progress', false);
-		$this->set_option('is_running', false);
-		$this->set_option('ignored_files_count', 0);
-		$this->set_option('supposed_total_files_count', 0);
+        $this->set_option('total_file_count',0);
+        $this->set_option('is_running', false);
+        $this->set_option('ignored_files_count', 0);
+        $this->set_option('supposed_total_files_count', 0);
+        $this->set_option('schedule_backup_running', false);
 		//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----completeing backup progress--------\n",FILE_APPEND);
 
         $this->set_option('last_backup_time', time());

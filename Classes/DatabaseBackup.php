@@ -90,7 +90,7 @@ class WPTC_DatabaseBackup
 
                 $this->backup_database_table($tableName, $count);
 
-                WPTC_Factory::get('logger')->log(sprintf(__("Processed table '%s'.", 'wptc'), $tableName));
+                WPTC_Factory::get('logger')->log(sprintf(__("Processed table %s.", 'wptc'), $tableName));
             }
         }
     }

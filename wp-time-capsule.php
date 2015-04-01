@@ -4,7 +4,7 @@ Plugin Name: WP Time Capsule
 Plugin URI: http://wptimecapsule.com
 Description: Keep your valuable WordPress website, its media and database backed up in Dropbox!
 Author: Revmakx
-Version: 1.0.0alpha4
+Version: 1.0.0alpha5
 Author URI: http://www.revmakx.com.
 /************************************************************
  * This plugin was modified by Revmakx						*
@@ -14,7 +14,7 @@ Author URI: http://www.revmakx.com.
  ************************************************************
 */
 define('WPTC_TEMP_COOKIE_FILE', str_replace('/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR.'/backups/tempCookie.txt'));
-define('WPTC_VERSION', '1.0.0alpha4');
+define('WPTC_VERSION', '1.0.0alpha5');
 define('WPTC_DATABASE_VERSION', '2');
 define('EXTENSIONS_DIR', str_replace('/', DIRECTORY_SEPARATOR, plugin_dir_path(__FILE__).'Classes/Extension/'));
 define('CHUNKED_UPLOAD_THREASHOLD', 4194304); //10 MB
@@ -88,11 +88,9 @@ function wordpress_time_capsule_admin_menu()
     if (version_compare(PHP_VERSION, MINUMUM_PHP_VERSION) >= 0) {
         $text = __('Backups', 'wptc');
         add_submenu_page('wp-time-capsule-monitor', $text, $text, 'activate_plugins', 'wp-time-capsule-monitor', 'wordpress_time_capsule_monitor');
-
-        //WPTC_Extension_Manager::construct()->add_menu_items();
-
-        /* $text = __('Premium Extensions', 'wptc');
-        add_submenu_page('wp-time-capsule', $text, $text, 'activate_plugins', 'wp-time-capsule-premium', 'tc_backup_premium'); */
+        
+        $text = __('Activity Log', 'wptc');
+        add_submenu_page('wp-time-capsule-monitor', $text, $text, 'activate_plugins', 'wp-time-capsule-activity', 'wordpress_time_capsule_activity'); 
     }
 	
 	$text = __('Settings', 'wptc');
@@ -100,6 +98,16 @@ function wordpress_time_capsule_admin_menu()
     
     $text = __('WPTC PRO', 'wptc');
     add_submenu_page('wp-time-capsule-monitor', $text, $text, 'activate_plugins', 'wp-time-capsule-pro', 'wordpress_time_capsule_pro_contents');
+}
+/**
+ * A wrapper function that includes the backup to Dropbox options page
+ * @return void
+ */
+function wordpress_time_capsule_activity()
+{
+    $uri = admin_url().'admin.php?page=wp-time-capsule-activity';
+    include 'Views/wptc-activity.php';
+
 }
 
 /**
@@ -142,20 +150,6 @@ function wordpress_time_capsule_monitor()
         include 'Views/wptc-monitor.php';
     }
 }
-
-/**
- * A wrapper function that includes the backup to Dropbox premium page
- * @return void
- */
-function tc_backup_premium()
-{
-    /* wp_enqueue_script('jquery-ui-core');
-    wp_enqueue_script('jquery-ui-tabs'); */
-
-    $uri = rtrim(plugins_url('wp-time-capsule'), '/');
-    include 'Views/wptc-premium.php';
-}
-
 /**
  * A wrapper function for the file tree AJAX request
  * @return void
@@ -214,6 +208,11 @@ function start_fresh_backup_tc_callback(){
 	
 	//do the backup process
 	$backup->backup_now();
+        
+        if(WPTC_Factory::get('config')->get_option('schedule_backup_running'))
+        {
+           store_name_for_this_backup_callback("Schedule Backup on ".date('H-i', time()));
+        }
 }
 
 function stop_fresh_backup_tc_callback(){
@@ -225,7 +224,7 @@ function stop_fresh_backup_tc_callback(){
 }
 
 function get_check_to_show_dialog_callback(){
-	if(!WPTC_Factory::get('config')->get_option('before_backup')){
+	if(!WPTC_Factory::get('config')->get_option('before_backup')||WPTC_Factory::get('config')->get_option('schedule_backup_running')){
 		$before_backup['before_backup'] = 'no';
 	}
 	else{
@@ -265,8 +264,6 @@ function start_restore_tc_callback(){
 	else{
 		$data = array();
 	}
-	//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ------whats gonna be callback data------- ".var_export($data,true)."\n",FILE_APPEND);
-	
 	//doing all the process of restore-downloading here
 	//setting the script start time
 	global $start_time_tc;
@@ -290,7 +287,7 @@ function start_restore_tc_callback(){
 	if(isset($data['files_to_restore'])){
 		$files_to_restore = $data['files_to_restore'];
 	}
-	if(isset($data['cur_res_b_id'])){
+	if(isset($data['cur_res_b_id'])&&$data['cur_res_b_id']!='false'){
             $cur_res_b_id = $data['cur_res_b_id'];
             $Process = new WPTC_Processed_Files;  // correct
             $backup_datas = $Process->get_this_backups($cur_res_b_id);
@@ -322,9 +319,14 @@ function start_restore_tc_callback(){
 	{
 		//store the current b_id in options table; the current b_id will be used to determine the future old files which are to be restored to the prev restore point
 		if(isset($data['cur_res_b_id']) && !empty($cur_res_b_id) && $cur_res_b_id != 'false'){
-			$config->set_option('cur_res_b_id', $cur_res_b_id);
-			$config->set_option('in_restore_deletion', false);
+                    $config->set_option('cur_res_b_id', $cur_res_b_id);
+                    $config->set_option('in_restore_deletion', false);
+                    $config->set_option('unknown_files_delete',true);
 		}
+                else
+                {
+                     $config->set_option('unknown_files_delete',false);
+                }
 		
 		//send email to the admin indicating that the restore process is started
 		$this_admin_email = get_option("admin_email");
@@ -357,7 +359,8 @@ function start_restore_tc_callback(){
 
 function get_and_store_before_backup_callback(){
 	$current_value_before_backup = WPTC_Factory::get('config')->get_option('before_backup');
-	if($current_value_before_backup == 'no'){
+        $schedule_run = WPTC_Factory::get('config')->get_option('schedule_backup_running');
+	if($current_value_before_backup == 'no'||$schedule_run){
 		$is_show = 'no';
 	}
 	else{
@@ -365,6 +368,25 @@ function get_and_store_before_backup_callback(){
 	}
 	echo $is_show;
 	die();
+}
+
+function get_issue_report_data_callback(){
+    $Report_issue=WPTC_BackupController::construct()->WTCreportIssue();
+    echo $Report_issue;
+    die();
+}
+
+function get_issue_report_specific_callback(){
+    if($_REQUEST['data']['log_id']!="")
+    {
+        $Report_issue=WPTC_BackupController::construct()->WTCreportIssue($_REQUEST['data']['log_id']);
+        echo $Report_issue;
+    }
+    die();
+}
+
+function trimValue(&$v){
+            $v = trim($v);
 }
 
 function store_backup_name($backup_name = '', $backup_id = null){
@@ -396,18 +418,19 @@ function store_backup_name($backup_name = '', $backup_id = null){
  */
 function execute_tcdropbox_backup()
 {
-	WPTC_Factory::get('logger')->delete_log();
-	WPTC_Factory::get('logger')->log(sprintf(__('Backup started on %s.', 'wptc'), date("l F j, Y", strtotime(current_time('mysql')))));
+    $backup_id = getTcCookie('backupID');
+	//WPTC_Factory::get('logger')->delete_log();
+	WPTC_Factory::get('logger')->log(sprintf(__('Backup started on %s.', 'wptc'), date("l F j, Y", strtotime(current_time('mysql')))),'backup_start',$backup_id);
 	
     $time = ini_get('max_execution_time');
     WPTC_Factory::get('logger')->log(sprintf(
         __('Your time limit is %s and your memory limit is %s'),
         $time ? $time . ' ' . __('seconds', 'wptc') : __('unlimited', 'wptc'),
         ini_get('memory_limit')
-    ));
+    ),'backup_progress',$backup_id);
 
     if (ini_get('safe_mode')) {
-        WPTC_Factory::get('logger')->log(__("Safe mode is enabled on your server so the PHP time and memory limit cannot be set by the backup process. So if your backup fails it's highly probable that these settings are too low.", 'wptc'));
+        WPTC_Factory::get('logger')->log(__("Safe mode is enabled on your server so the PHP time and memory limit cannot be set by the backup process. So if your backup fails it's highly probable that these settings are too low.", 'wptc'),'backup_progress',$backup_id);
     }
 
     WPTC_Factory::get('config')->set_option('in_progress', true);
@@ -426,18 +449,19 @@ function execute_tcdropbox_backup()
 
 function execute_tcdrobox_restore()
 {
-    WPTC_Factory::get('logger')->delete_log();
-    WPTC_Factory::get('logger')->log(sprintf(__('REstore started on %s.', 'wptc'), date("l F j, Y", strtotime(current_time('mysql')))));
-
+    //WPTC_Factory::get('logger')->delete_log();
+    $restore_action_id = time();
+    WPTC_Factory::get('config')->set_option('restore_action_id',  $restore_action_id);
+    WPTC_Factory::get('logger')->log(sprintf(__('Restore started on %s.', 'wptc'), date("l F j, Y", strtotime(current_time('mysql')))),'restore_start',$restore_action_id);
     $time = ini_get('max_execution_time');
     WPTC_Factory::get('logger')->log(sprintf(
         __('Your time limit is %s and your memory limit is %s'),
         $time ? $time . ' ' . __('seconds', 'wptc') : __('unlimited', 'wptc'),
         ini_get('memory_limit')
-    ));
+    ),'restore_start',$restore_action_id);
 
     if (ini_get('safe_mode')) {
-        WPTC_Factory::get('logger')->log(__("Safe mode is enabled on your server so the PHP time and memory limit cannot be set by the REstore process. So if your Restore fails it's highly probable that these settings are too low.", 'wptc'));
+        WPTC_Factory::get('logger')->log(__("Safe mode is enabled on your server so the PHP time and memory limit cannot be set by the REstore process. So if your Restore fails it's highly probable that these settings are too low.", 'wptc'),'restore_error',$restore_action_id);
     }
 	WPTC_Factory::get('config')->set_option('in_progress_restore', true);
 	
@@ -456,7 +480,7 @@ function monitor_tcdropbox_backup()
     $mtime = filemtime(WPTC_Factory::get('logger')->get_log_file());
 
     if ($config->get_option('in_progress') && ($mtime < time() - NO_ACTIVITY_WAIT_TIME)) {
-        WPTC_Factory::get('logger')->log(sprintf(__('There has been no backup activity for a long time. Attempting to resume the backup.' , 'wptc'), 5));
+        WPTC_Factory::get('logger')->log(sprintf(__('There has been no backup activity for a long time. Attempting to resume the backup.' , 'wptc'), 5),'backup_process');
         $config->set_option('is_running', false);
 
         wp_schedule_single_event(time(), 'run_tc_backup_hook');
@@ -468,7 +492,7 @@ function monitor_tcdropbox_backup()
  */
 function run_tc_backup()
 {
-	file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----trying to run dropbox backup------ \n",FILE_APPEND);
+	//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----trying to run dropbox backup------ \n",FILE_APPEND);
     $options = WPTC_Factory::get('config');
     if (!$options->get_option('is_running')) {
         $options->set_option('is_running', true);
@@ -606,14 +630,20 @@ function wptc_install()
            `processed_time` varchar(30) NOT NULL,
            PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
-	/* $table_name = $wpdb->prefix . 'wptc_to_be_restored_files';
-    dbDelta("CREATE TABLE $table_name` (
-	  `file` text,
-	  `revision_id` int(50) DEFAULT NULL,
-	  `file_id` int(255) NOT NULL AUTO_INCREMENT,
-	  `offset` int(255) DEFAULT NULL,
-	  PRIMARY KEY (`file_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=latin1;"); */
+        $table_name = $wpdb->prefix . 'wptc_activity_log';
+    dbDelta("CREATE TABLE $table_name (
+            `id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `type` varchar(50) NOT NULL,
+            `log_data` text NOT NULL,
+            `parent` tinyint(1) NOT NULL DEFAULT '0',
+            `parent_id` bigint(20) NOT NULL,
+            `is_reported` tinyint(1) NOT NULL DEFAULT '0',
+            `report_id` varchar(50) NOT NULL,
+            `action_id` text NOT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `id` (`id`)
+          ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;");
 
     //Ensure that there where no insert errors
     $errors = array();
@@ -633,6 +663,8 @@ function wptc_install()
     if (empty($errors)) {
         WPTC_Factory::get('config')->set_option('database_version', WPTC_DATABASE_VERSION);
     }
+    add_option('wptc_do_activation_redirect', true);
+    
 }
 
 function wptc_init()
@@ -646,10 +678,43 @@ function wptc_init()
             add_option('wptc-premium-extensions', array(), false, 'no');
         }
 		
-		if (!WPTC_Factory::get('config')->get_option('before_backup')) {
+	if (!WPTC_Factory::get('config')->get_option('before_backup')) {
             WPTC_Factory::get('config')->set_option('before_backup', 'yes_no');
         }
-		
+        
+         if (!WPTC_Factory::get('config')->get_option('anonymous_datasent')) {
+             WPTC_Factory::get('config')->set_option('anonymous_datasent', 'yes');
+        }
+        
+         if (!WPTC_Factory::get('config')->get_option('schedule_backup')) {
+             WPTC_Factory::get('config')->set_option('schedule_backup', 'off');
+        }
+        
+        if(!WPTC_Factory::get('config')->get_option('wptc_timezone'))
+        {
+            if(get_option('timezone_string')!=""){
+                WPTC_Factory::get('config')->set_option('wptc_timezone',get_option('timezone_string'));
+            }
+            else
+            {
+                WPTC_Factory::get('config')->set_option('wptc_timezone','UTC');
+            }
+        }
+        
+        if(!WPTC_Factory::get('config')->get_option('schedule_day'))
+        {
+            WPTC_Factory::get('config')->set_option('schedule_day','sunday');
+        }
+        
+         if(!WPTC_Factory::get('config')->get_option('schedule_time'))
+        {
+            WPTC_Factory::get('config')->set_option('schedule_time','02:00:00');
+        }
+        if (get_option('wptc_do_activation_redirect', false)) {
+            delete_option('wptc_do_activation_redirect');
+            wp_redirect(get_admin_url().'?page=wp-time-capsule-monitor');
+        }
+        
     } catch (Exception $e) {
         error_log($e->getMessage());
     }
@@ -755,24 +820,125 @@ function my_tcadmin_notice() {
     }
 }
 
+function send_wtc_issue_report(){
+    $data = $_REQUEST['data'];
+    $current_user = $data['email'];
+    $desc = $data['desc'];
+    $idata = $data['issue_data'];
+    $random=generateRandomString();
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://www.wptimecapsule.com/report_issue/index.php");
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_POSTREDIR, 3);
+    curl_setopt($ch, CURLOPT_POSTFIELDS,"type=issue&issue=".$idata."&useremail=".$current_user."&title=".$desc."&rand=".$random);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+
+    // grab URL and pass it to the browser
+    $result = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+    if($httpCode == 404) {
+        echo "fail";
+        exit();
+    }
+    $curlErr=curl_errno($ch);
+    curl_close($ch);
+    if($curlErr)
+    {  
+        echo "fail";
+        exit();
+    }
+    else {
+        if($result=='insert_success'){
+            echo "sent";
+            die();
+        }
+        else{
+            echo "insert_fail";
+            die();
+        }
+        exit();
+    }
+}
+function set_wtc_content_type($content_type){
+    return 'text/html';
+}
+/**
+ * On an early action hook, check if the hook is scheduled - if not, schedule it.
+ */
+function wptc_setup_schedule() {
+	if ( ! wp_next_scheduled( 'wptc_anonymous_event' ) ) {
+                wp_schedule_single_event( time(), 'wptc_anonymous_event' );
+		wp_schedule_event( time(), 'weekly', 'wptc_anonymous_event');
+	}
+}
+/**
+ * On the scheduled action hook, run a function.
+ */
+function anonymous_event() {
+    $config = WPTC_Factory::get('config');
+    $anonymous_flag=$config->get_option('anonymous_datasent');
+    if($anonymous_flag=="yes"){
+    $current_user = get_option('admin_email');
+    $sitename=get_option('blogname');
+    $anonymousData=  serialize(WPTC_BackupController::construct()->WTCGetAnonymousData());
+    $random=generateRandomString();
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://www.wptimecapsule.com/anonymous_data/index.php");
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_POSTREDIR, 3);
+    curl_setopt($ch, CURLOPT_POSTFIELDS,"type=anonymous&data=".$anonymousData."&useremail=".$current_user."&site=".$sitename."&rand=".$random);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    $result = curl_exec($ch);
+    }
+}
+//Clear the WPTC log's completely
+function clear_wptc_logs(){
+    global $wpdb;
+    if($wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_activity_log`")){
+        echo 'yes';
+    }
+    else
+    {
+        echo 'no';
+    }
+    die();
+}
+//Dropbox auth checking for continue process
+function dropbox_auth_check(){
+    $dropbox = WPTC_Factory::get('dropbox');
+    if($dropbox->is_authorized())
+    {
+        echo 'authorized';
+        die();
+    }
+    else
+    {
+        echo "not authorized";
+        die();
+    }
+    
+}
+
 //admin notice
 add_action( 'admin_notices', 'my_tcadmin_notice' );
-
 //More cron shedules
 add_filter('cron_schedules', 'backup_tc_cron_schedules');
-
+add_action( 'wptc_anonymous_event', 'anonymous_event' );
 //Backup hooks
 add_action('monitor_tcdropbox_backup_hook', 'monitor_tcdropbox_backup');
 add_action('run_tc_backup_hook', 'run_tc_backup');
 add_action('execute_periodic_drobox_backup', 'execute_tcdropbox_backup');
 add_action('execute_instant_drobox_backup', 'execute_tcdropbox_backup');
-
+add_action('wptc_schedule_backup_event','wptc_schedule_backup');
 //Register database install
 register_activation_hook(__FILE__, 'wptc_install');
 
 add_action('admin_init', 'wptc_init');
 add_action('admin_enqueue_scripts', 'wptc_style');
-
+add_action( 'wp', 'wptc_setup_schedule' );
 //i18n language text domain
 load_plugin_textdomain('wptc', false, 'wp-time-capsule/Languages/');
 
@@ -797,7 +963,11 @@ if (is_admin()) {
 	add_action('wp_ajax_get_check_to_show_dialog', 'get_check_to_show_dialog_callback');
 	add_action('wp_ajax_start_restore_tc', 'start_restore_tc_callback');
 	add_action('wp_ajax_get_and_store_before_backup', 'get_and_store_before_backup_callback');
-
+        add_action('wp_ajax_get_issue_report_data','get_issue_report_data_callback');
+        add_action('wp_ajax_send_wtc_issue_report','send_wtc_issue_report');
+        add_action('wp_ajax_get_issue_report_specific','get_issue_report_specific_callback');
+        add_action('wp_ajax_clear_wptc_logs','clear_wptc_logs');
+        add_action('wp_ajax_continue_with_wtc','dropbox_auth_check');
     if (defined('MULTISITE') && MULTISITE) {
         add_action('network_admin_menu', 'wordpress_time_capsule_admin_menu');
     } else {
@@ -805,4 +975,112 @@ if (is_admin()) {
     }
 }
 
+//log the action Activate /Deactivate / Uninstall
 
+function WTC_Log_on_activation()
+{
+     $logger = WPTC_Factory::get('logger');
+     $logger->log('WTCapsule Activated','activated_plugin');
+}
+
+function WCM_Log_on_deactivation()
+{
+    $logger = WPTC_Factory::get('logger');
+    $logger->log('WTCapsule Deactivated','deactivated_plugin');
+}
+
+register_activation_hook(   __FILE__, 'WTC_Log_on_activation' );
+register_deactivation_hook( __FILE__, 'WCM_Log_on_deactivation' );
+
+
+//Add or modify the schedule backup in wptc
+function wptc_modify_schedule_backup(){
+    //Getting options
+    $config = WPTC_Factory::get('config');
+    $schedule_backup = $config->get_option('schedule_backup');
+    $schedule_interval = $config->get_option('schedule_interval');
+    $schedule_day = $config->get_option('schedule_day');
+    $schedule_time = $config->get_option('schedule_time');
+    $wptc_timezone = $config->get_option('wptc_timezone');
+    if($schedule_backup=='off') //Removing the scheduled backup tasks
+    {
+            wp_clear_scheduled_hook( 'wptc_schedule_backup_event' );
+    }
+    
+    if($schedule_backup == 'on') //Create new schedule task for backup
+    {
+        //Daily schedule backup type
+        if($schedule_interval=='daily')
+        {
+            $user_tz = new DateTime(date('Y-m-d H:i:s'), new DateTimeZone('UTC') );
+            $user_tz->setTimeZone(new DateTimeZone($wptc_timezone));
+            $user_tz_now =  $user_tz->format('Y-m-d H:i:s');
+            $todayschedule = $user_tz->format('Y-m-d').' '.$schedule_time;
+            //convert date into unix time
+            $unix_user_tz_now =  strtotime($user_tz_now);
+            $unix_today_sch = strtotime($todayschedule);
+            
+            if($unix_today_sch < $unix_user_tz_now)
+            {
+                $next_day_sch=date('Y-m-d H:i:s',strtotime('+1 day', strtotime($todayschedule)));
+                $unix_today_sch=strtotime($next_day_sch);
+                $diff=$unix_today_sch-$unix_user_tz_now;
+            }
+            else
+            {
+                $diff=$unix_today_sch-$unix_user_tz_now;
+            }
+             wp_schedule_event( time()+$diff, 'daily', 'wptc_schedule_backup_event');
+        }
+        
+        //weekly schedule backup type
+        if($schedule_interval=='weekly')
+        {
+            $user_tz = new DateTime(date('Y-m-d H:i:s'), new DateTimeZone('UTC') );
+            $user_tz->setTimeZone(new DateTimeZone($wptc_timezone));
+            $user_tz_now =  $user_tz->format('Y-m-d H:i:s');
+            $unix_user_tz_now = strtotime($user_tz_now);
+            $user_tz_day = $user_tz->format('l');
+            $passed=true;
+            if(strtolower($user_tz_day)==$schedule_day)//Schedule day is today
+            {
+                $unix_sch_today = strtotime($user_tz->format('Y-m-d').' '.$schedule_time);
+                if($unix_sch_today > $unix_user_tz_now)// today schedule time is not passed 
+                {
+                    $passed=false;
+                    $diff=$unix_sch_today-$unix_user_tz_now;
+                }                
+            }
+            if($passed){
+                $unix_next_sch = strtotime('next '.$schedule_day.', '.$schedule_time, $unix_user_tz_now);
+                $diff = $unix_next_sch - $unix_user_tz_now;
+            }
+        }   
+        if(wp_next_scheduled( 'wptc_schedule_backup_event' )){ //Checking the event is scheduled or not
+            wp_clear_scheduled_hook( 'wptc_schedule_backup_event' );
+        }
+        wp_schedule_single_event( time()+$diff, 'wptc_schedule_backup_event' );
+        wp_schedule_event( time()+$diff, $schedule_interval, 'wptc_schedule_backup_event');
+    }
+}
+
+//schedule backup running 
+function wptc_schedule_backup(){
+      $options = WPTC_Factory::get('config');
+        if (!$options->get_option('is_running')) {
+            $options->set_option('schedule_backup_running',true);
+            $options->set_option('is_running', true);
+            start_fresh_backup_tc_callback();
+        }
+}
+
+//Generate Random keys
+function generateRandomString($length = 10) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}

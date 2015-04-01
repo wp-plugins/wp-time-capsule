@@ -6180,7 +6180,10 @@ function DayEventRenderer() {
 		jQuery(".fc-corner-left").parent(".fc-header-left").removeClass("fc-header-left").addClass("fc-header-right");
 		jQuery('.backup_content_tc').css("height", "19px");
 		jQuery('.backup_content_tc').on('click', function(ev) {
+                    if(!backupclickProgress){
+                        backupclickProgress=true;
 			var thisDayBackups = getThisDayBackups(jQuery(this).attr("backupids"));
+                    }
 		}); 
 		
 		return segments;
@@ -6322,7 +6325,8 @@ function DayEventRenderer() {
 			if(thisObj.attr("data-date") == event.start._i)
 			{
 				thisObj.addClass('tc-hasBU');
-				jQuery('div .fc-day-content', thisObj).append('<div class="backup_content_tc" style="height:19px" backupIDs="'+htmlEscape(event.backupIDs || '')+'" >'+htmlEscape(event.title || '')+'</div>');
+                                jQuery('div .fc-day-content .backup_content_tc', thisObj).remove();
+                                jQuery('div .fc-day-content', thisObj).append('<div class="backup_content_tc" style="height:19px" backupIDs="'+htmlEscape(event.backupIDs || '')+'" >'+htmlEscape(event.title || '')+'</div>');
 			}
 		});
 		

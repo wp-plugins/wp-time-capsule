@@ -43,6 +43,9 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
         return 'file';
     }
 	
+    protected function getRevisionId() {
+        return 'revision_id';
+    }
 	
 	protected function getRestoreTableName()
     {
@@ -176,6 +179,8 @@ class WPTC_Processed_Restoredfiles extends WPTC_Processed_Base
                 continue;
             }
 			*/
+            //file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n -----Files to be added--- \n",FILE_APPEND);
+            //file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',  var_export($file,true),FILE_APPEND);
             $this->upsert(array(
                 'file' => $file['file'],
                 'uploadid' => null,

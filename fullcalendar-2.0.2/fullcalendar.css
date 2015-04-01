@@ -499,7 +499,8 @@ border: 1px solid transparent; }
 	overflow:scroll; */
 	background-color: #f1f1f1;
 	height: auto;
-	overflow: scroll;
+        overflow-x: hidden;
+        overflow-y: auto;
 	position: relative;
 	font-family: 'open_sansregular' !important;
 }	

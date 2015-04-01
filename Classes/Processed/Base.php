@@ -49,8 +49,11 @@ abstract class WPTC_Processed_Base
 	abstract protected function getRestoreTableName();
 
     abstract protected function getId();
-	
-	abstract protected function getFileId();					//file column is not unique now .. so we should update using file_id 
+    
+    abstract protected function getRevisionId();
+
+
+    abstract protected function getFileId();					//file column is not unique now .. so we should update using file_id 
 	
 	abstract protected function getUploadMtime();
 	
@@ -122,35 +125,40 @@ abstract class WPTC_Processed_Base
 	
     protected function upsert($data)
     {
-		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ------upsertData-------- ".var_export($data,true)."\n",FILE_APPEND);
+		//file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n ------upsertData-------- ".var_export($data,true)."\n",FILE_APPEND);
 		if(!empty($data[$this->getUploadMtime()]))			//am introducing this condition to avoid conflicts with multipart upload     manual
 		{
+                        //file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n -------Here getuploadmtime------- ".var_export($data,true)."\n",FILE_APPEND);
 			//am adding an extra condition to check the modified time (if the modified time is different then add the values to DB or else leave it)
 			$exists = $this->db->get_var(
 			$this->db->prepare("SELECT * FROM {$this->db->prefix}wptc_processed_{$this->getTableName()} WHERE {$this->getId()} = %s AND {$this->getUploadMtime()} = %s AND {$this->getBackupID()} = %s", $data[$this->getId()], $data[$this->getUploadMtime()], $data['backupID'])  );
 		}
 		else
 		{	
-			////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----replacing whole thing------\n",FILE_APPEND);
+			//file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n -----empty getuploadmtime------\n",FILE_APPEND);
 			$exists = $this->db->get_var(
 			$this->db->prepare("SELECT * FROM {$this->db->prefix}wptc_processed_{$this->getTableName()} WHERE {$this->getId()} = %s ", $data[$this->getId()] )  );		//nust be used only for restoring , i guess
 		}
-		////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----file ".var_export($data[$this->getId()],true)."-----exist result--- ".var_export($exists,true)."\n",FILE_APPEND);
-        if (is_null($exists)) {
+		//file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n ----file ".var_export($data[$this->getId()],true)."-----exist result--- ".var_export($exists,true)."\n",FILE_APPEND);
+                $config=WPTC_Factory::get('config');
+                $last_restore =$config->get_option('last_process_restore');
+                $restore_progress = $config->get_option('in_progress_restore');
+                //file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n ----last restore ".$last_restore,FILE_APPEND);
+        if (is_null($exists) || ( $last_restore && ! $restore_progress )) {
 			$this_insert_result = $this->db->insert("{$this->db->prefix}wptc_processed_{$this->getTableName()}", $data);
-			//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----this_insert_result------- ".var_export($this_insert_result,true)."\n",FILE_APPEND);
+			//file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n -----this_insert_result------- ".var_export($this_insert_result,true)."\n",FILE_APPEND);
 			if($this_insert_result)
 			{
 				$data['file_id'] = $this->db->insert_id;			//am not adding file_id to the processed restored file array
 			}
 			else{
-				//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----this_insert_result_error------- ".var_export(mysql_error(),true)."\n",FILE_APPEND);
+				//file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n -----this_insert_result_error------- ".var_export(mysql_error(),true)."\n",FILE_APPEND);
 			}
             $this->processed[] = (object)$data;
         } else {
 			if(!empty($data['file_id']))
 			{
-				////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----upsertData by id------ ".var_export($data,true)."\n",FILE_APPEND);
+				//file_put_contents(WP_CONTENT_DIR .'/DEBUG.php',"\n -----upsertData by id------ ".var_export($data,true)."\n",FILE_APPEND);
 				$this->db->update(																//am changing the whole update process to file_id
 					"{$this->db->prefix}wptc_processed_{$this->getTableName()}",
 					$data,
@@ -159,12 +167,20 @@ abstract class WPTC_Processed_Base
 			}
 			else
 			{
-				////file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----upsertData by file------ ".var_export($data,true)."\n",FILE_APPEND);
-				$this->db->update(																//am changing the whole update process to file_id
+				 if(isset($data[$this->getRevisionId()])&&$data['uploaded_file_size']>4024000){
+                                    $this->db->update(																//am changing the whole update process to file_id
 					"{$this->db->prefix}wptc_processed_{$this->getTableName()}",
 					$data,
 					array($this->getId() => $data[$this->getId()])
+				);   
+                                }
+                                else{
+				$this->db->update(																//am changing the whole update process to file_id
+					"{$this->db->prefix}wptc_processed_{$this->getTableName()}",
+					$data,
+					array($this->getId() => $data[$this->getId()],$this->getRevisionId() => $data[$this->getRevisionId()])
 				);
+                                }
 			}
             
 
@@ -232,5 +248,10 @@ abstract class WPTC_Processed_Base
 		$replace_files = $this->db->get_results("SELECT DISTINCT file FROM {$this->db->prefix}wptc_processed_files WHERE backupID < '$backup_id'" );
 		return $replace_files;
 	}
+        public function get_all_processed_files()
+        {
+            $unknown_files = $this->db->get_results("SELECT DISTINCT file FROM {$this->db->prefix}wptc_processed_files",ARRAY_N);
+            return $unknown_files;
+        }
 	
 }
