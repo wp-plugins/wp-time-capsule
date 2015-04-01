@@ -43,11 +43,11 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 = 1.0.0alpha3 =
 * initial release.
 
-==1.0.0alpha4 ==
+= 1.0.0alpha4 =
 * bug fixes on intial release
 * improved background backup process
 
-==1.0.0alpha5==
+= 1.0.0alpha5 =
 * schedule backup added
 * issue reporting added
 * activity log added
