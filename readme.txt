@@ -40,16 +40,16 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 3. Once installed click Activate plugin. You can see the WP Time Capsule plugin in dashboard
 
 == Changelog ==
-= 1.0.0alpha3 =
-* initial release.
-
-= 1.0.0alpha4 =
-* bug fixes on intial release
-* improved background backup process
-
 = 1.0.0alpha5 =
-* schedule backup added
-* issue reporting added
-* activity log added
+* Schedule backup added
+* Issue reporting added
+* Activity log added
 * UI improvements
 * Bug fixes
+
+= 1.0.0alpha4 =
+* Bug fixes on intial release
+* Improved background backup process
+
+= 1.0.0alpha3 =
+* Initial release.
