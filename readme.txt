@@ -73,6 +73,12 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 2. In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it<br>
 3. Once installed click Activate plugin. You can see the WP Time Capsule plugin in dashboard
 
+== Screenshots ==
+
+1. **Backup calendar view** - You can view and restore files + database from a calendar view.
+2. **Restore selective files** - View a list of files that have changed and been backed up since the previous backup and selectively restore them.
+3. **Warp back your site in time** - You can restore the complete site to a specific point in time using the backups.
+
 == Changelog ==
 
 = 1.0.0alpha5 =
