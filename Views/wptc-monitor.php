@@ -46,16 +46,7 @@ if (array_key_exists('stop_backup', $_POST)) {
     $started = true;
     add_settings_error('wptc_monitor', 'backup_started', __('Backup started.', 'wptc'), 'updated');
 }
-//Initial backup option
-$freshbackupPopUp=false;
-if(isset($_GET['action']))
-{
-    $initial_setup=$_GET['action'];
-}
-if($fresh=='yes'&&$initial_setup=='initial_setup')
-{
-    $freshbackupPopUp = true;
-}
+
 ?>
 <link href='<?php echo $uri;?>/fullcalendar-2.0.2/fullcalendar.css' rel='stylesheet' />
 <link href='<?php echo $uri;?>/fullcalendar-2.0.2/fullcalendar.print.css' rel='stylesheet' media='print' />
@@ -966,7 +957,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 		});
 	}
 	
-    jQuery(document).ready(function () {
+    jQuery(document).ready(function ($) {
 		//console.log("hi");
 		/* jQuery(function(){
 			jQuery('.fc-event-inner').on('click', function() {
@@ -974,7 +965,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 				//console.log(jQuery(this).find(".fc-event-title").attr("backupids"));
 			});
 		}); */
-                
+		
         wtc_reload();
 		
 		jQuery('#start_backup').on('click', function(){
@@ -992,7 +983,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 					show_backup_progress_dialog('', 'fresh');
                                         
                                         if(fresh=='yes'){
-                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p style="text-align: center; line-height: 24px;">This is your first backup. We are now copying all your files and db to your Dropbox account. This might take a while. Subsequent backups will be instantaneous since they are incremental. <br>Please be patient and don’t close the window.</p></div>';
+                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p style="text-align: center; line-height: 24px;">This is your first backup. We now have to copy of all the files to your Dropbox account and is time-consuming. Successive backups will be instantaneous since they are incremental. <br>Please be patient and don’t close the window.</p></div>';
                                             jQuery(".backup_progress_tc").parent().append(inicontent);
                                         }
 					//call the name storing funciton to give this backup process a name 
@@ -1042,10 +1033,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
                 ?>
                     jQuery('#sch_backup').hide();
                 <?php } ?>        
-                    
-                 <?php if($freshbackupPopUp){?>
-                        freshBackupPopUpShow();
-                <?php }?>
+                        
     });
 </script>
 <?php 
@@ -1057,7 +1045,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 
     
 	<form id="backup_to_dropbox_options" name="backup_to_dropbox_options" action="admin.php?page=wp-time-capsule-monitor" method="post" style=" width: 100%;">
-            <h2 style="width: 195px; display: inline;"><?php _e('Backups', 'wptc'); ?>
+            <h2 style="width: 13%; display: inline-block;"><?php _e('Backups', 'wptc'); ?>
         <?php if ($config->get_option('in_progress') || isset($started)): ?>
             <a id="stop_backup" name="stop_backup" class="add-new-h2" style="cursor:pointer"><?php _e('Stop Backup', 'wptc'); ?></a>
         <?php else: ?>
@@ -1066,7 +1054,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
             <div id="sch_backup" style="display: inline-block; font-size: 12px; color: red; padding: 0% 1%;">Currently scheduled backup running</div>
             </h2>
             <?php if($schedule_backup=='off'){ ?>
-            <a style="margin-top: 15px; display: inline;" href="<?php echo admin_url().'admin.php?page=wp-time-capsule&highlight=schedule'?>">Turn on scheduled backup</a>
+            <a style="display: inline-block" href="<?php echo admin_url().'admin.php?page=wp-time-capsule&highlight=schedule'?>">Turn on scheduled backup</a>
             <?php } ?>
         <?php wp_nonce_field('wordpress_time_capsule_monitor_stop'); ?>
             <!--<a style="float: right;display: inline-block;margin-top:8px;padding-left:13px;" href="https://wptimecapsule.uservoice.com/" target="_blank">Get support</a>-->

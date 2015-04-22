@@ -434,8 +434,8 @@ ul.bu_list_cont li.bu_list .bu_meta .toggle_files.selection_mode_on::after, ul.b
 	position: absolute;
 	right: 15px;
 	top: 15px;
-	width: 24px;
-        height: 24px;
+	width: 23px;
+	height: 23px;
 	cursor: pointer;
 }
 .dbox_quota {

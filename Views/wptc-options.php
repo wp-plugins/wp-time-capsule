@@ -127,7 +127,7 @@ try {
             jQuery.post(ajaxurl, { action : 'continue_with_wtc' }, function(data) {
 			console.log(data);
                         if(data=='authorized'){
-                            window.location = '<?php echo admin_url('admin.php?page=wp-time-capsule-monitor&action=initial_setup'); ?>';
+                            window.location = '<?php echo admin_url('admin.php?page=wp-time-capsule-monitor'); ?>';
                         }
                         else
                         {
@@ -404,13 +404,12 @@ try {
     </p>
         <?php wp_nonce_field('wordpress_time_capsule_options_save'); ?>
     </form>
-        <div>For Queries Contact <a href="mailto:help@wptimecapsule.com?Subject=Contact" target="_top">help@wptimecapsule.com</a></div>
         <?php
 
     } else {
         ?>
 		
-		<div class="pu_title"><?php _e('Welcome to WP Time Capsule', 'wptc'); ?></div>
+		<div class="pu_title"><?php _e('Welcome to WPTimeCapsule', 'wptc'); ?></div>
 		<div class="wcard clearfix">
 	    <div class="l1"  style="padding-bottom: 10px;"><?php _e('Once you connect your Dropbox account, the backups that
 	    you create will be stored in the assigned folder in your account.', 'wptc'); ?></div>
@@ -423,7 +422,7 @@ try {
                <?php if(isset($_GET['error'])&&!$dropbox->is_authorized()): ?>
             <?php $dropbox->unlink_account()->init(); ?>
                 <div style="width: 100%">
-                    <p style="width: 40%; margin-left: 30%; text-align: center; padding: 1%; font-weight: bolder; background: none repeat scroll 0% 0% rgba(255, 0, 0, 0.1); color: rgba(255, 0, 0, 0.59);"><?php _e('Something went wrong while authorizing with your Dropbox account. Please try again.', 'wptc'); ?></p>
+                    <p style="width: 40%; color: red; margin-left: 30%; text-align: center; padding: 1%; border-radius: 40px; background: none repeat scroll 0% 0% rgb(255, 255, 255); box-shadow: 0px 1px 3px rgb(0, 0, 0); font-weight: bolder;"><?php _e('There was an error authorizing the plugin with your Dropbox account. Please try again.', 'wptc'); ?></p>
                 </div>
         <?php endif; ?>
 		

@@ -2,9 +2,9 @@
 /*
 Plugin Name: WP Time Capsule
 Plugin URI: http://wptimecapsule.com
-Description: Incremental Backup Plugin - After the initial full backup to Dropbox, back up just the changes periodically.
+Description: Keep your valuable WordPress website, its media and database backed up in Dropbox!
 Author: Revmakx
-Version: 1.0.0beta1
+Version: 1.0.0alpha5
 Author URI: http://www.revmakx.com.
 /************************************************************
  * This plugin was modified by Revmakx						*
@@ -14,7 +14,7 @@ Author URI: http://www.revmakx.com.
  ************************************************************
 */
 define('WPTC_TEMP_COOKIE_FILE', str_replace('/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR.'/backups/tempCookie.txt'));
-define('WPTC_VERSION', '1.0.0beta1');
+define('WPTC_VERSION', '1.0.0alpha5');
 define('WPTC_DATABASE_VERSION', '2');
 define('EXTENSIONS_DIR', str_replace('/', DIRECTORY_SEPARATOR, plugin_dir_path(__FILE__).'Classes/Extension/'));
 define('CHUNKED_UPLOAD_THREASHOLD', 4194304); //10 MB
@@ -22,7 +22,6 @@ define('MINUMUM_PHP_VERSION', '5.2.16');
 define('NO_ACTIVITY_WAIT_TIME', 60); //5 mins to allow for socket timeouts and long uploads
 define('TC_PLUGIN_PREFIX', 'wptc');
 define('TC_PLUGIN_NAME', 'wp-time-capsule');
-define('WPTC_APSERVER_URL','service.wptimecapsule.com');
 //define('WPTC_TEST_MODE', true);
 if (!function_exists('spl_autoload_register')) {
     spl_autoload_register('wptc_autoload');
@@ -828,7 +827,7 @@ function send_wtc_issue_report(){
     $idata = $data['issue_data'];
     $random=generateRandomString();
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, WPTC_APSERVER_URL."/report_issue/index.php");
+    curl_setopt($ch, CURLOPT_URL, "http://www.wptimecapsule.com/report_issue/index.php");
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_POSTREDIR, 3);
@@ -847,7 +846,6 @@ function send_wtc_issue_report(){
     curl_close($ch);
     if($curlErr)
     {  
-        WPTC_Factory::get('logger')->log("Curl Error no : $curlErr - While Sending the Report data to server",'connection_error');
         echo "fail";
         exit();
     }
@@ -882,30 +880,18 @@ function anonymous_event() {
     $config = WPTC_Factory::get('config');
     $anonymous_flag=$config->get_option('anonymous_datasent');
     if($anonymous_flag=="yes"){
-    $app_hash = $config->get_option('wptc_app_hash');    
-    if($app_hash==''||$app_hash==null)
-    {
-        $salt = time();
-        $current_user = get_option('admin_email');
-        $app_hash = sha1($current_user.$salt);
-        $config->set_option('wptc_app_hash',$app_hash);
-    }
+    $current_user = get_option('admin_email');
+    $sitename=get_option('blogname');
     $anonymousData=  serialize(WPTC_BackupController::construct()->WTCGetAnonymousData());
     $random=generateRandomString();
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, WPTC_APSERVER_URL."/anonymous_data/index.php");
+    curl_setopt($ch, CURLOPT_URL, "http://www.wptimecapsule.com/anonymous_data/index.php");
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_POSTREDIR, 3);
-    curl_setopt($ch, CURLOPT_POSTFIELDS,"type=anonymous&data=".$anonymousData."&app_hash=".$app_hash."&rand=".$random);
+    curl_setopt($ch, CURLOPT_POSTFIELDS,"type=anonymous&data=".$anonymousData."&useremail=".$current_user."&site=".$sitename."&rand=".$random);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_exec($ch);
-    $curlErr=curl_errno($ch);
-    curl_close($ch);
-    if($curlErr)
-    {  
-        WPTC_Factory::get('logger')->log("Curl Error no: $curlErr - While Sending the Anonymous data to server",'connection_error');
-    }
+    $result = curl_exec($ch);
     }
 }
 //Clear the WPTC log's completely
@@ -953,12 +939,6 @@ register_activation_hook(__FILE__, 'wptc_install');
 add_action('admin_init', 'wptc_init');
 add_action('admin_enqueue_scripts', 'wptc_style');
 add_action( 'wp', 'wptc_setup_schedule' );
-
-add_action( 'load-index.php', 
-    function(){
-        add_action( 'admin_notices', 'initial_setup_notices' );
-    }
-);
 //i18n language text domain
 load_plugin_textdomain('wptc', false, 'wp-time-capsule/Languages/');
 
@@ -988,7 +968,6 @@ if (is_admin()) {
         add_action('wp_ajax_get_issue_report_specific','get_issue_report_specific_callback');
         add_action('wp_ajax_clear_wptc_logs','clear_wptc_logs');
         add_action('wp_ajax_continue_with_wtc','dropbox_auth_check');
-        add_action('wp_ajax_subscribe_me','wptc_subscribe_me');
     if (defined('MULTISITE') && MULTISITE) {
         add_action('network_admin_menu', 'wordpress_time_capsule_admin_menu');
     } else {
@@ -1105,95 +1084,3 @@ function generateRandomString($length = 10) {
     }
     return $randomString;
 }
-
-//Subscribe me 
-function wptc_subscribe_me(){
-    $email = $_REQUEST['email'];
-    $current_user = wp_get_current_user();
-    $fname = $current_user->user_firstname;
-    $lname = $current_user->user_lastname;
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, WPTC_APSERVER_URL."/subscribe_me/index.php");
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_POSTREDIR, 3);
-    curl_setopt($ch, CURLOPT_POSTFIELDS,"email=".$email."&fname=".$fname."&lname=".$lname);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-
-    // grab URL and pass it to the browser
-    $result = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-    if($httpCode == 404) {
-        echo "insert_fail";
-        die();
-    }
-    $curlErr=curl_errno($ch);
-    curl_close($ch);
-    if($curlErr)
-    {  
-        WPTC_Factory::get('logger')->log("Curl Error no: $curlErr - While Subscribe the WP Time Capsule PRO",'connection_error');
-        echo "fail";
-        die();
-    }
-    else {
-        if($result=='1'){
-            subscribed($email);
-            echo "added";
-            die();
-        }
-        else{
-            if($result=='2')
-            {
-                subscribed($email);
-                echo "exist";
-            }
-            else {
-                echo "fail";
-            }
-            die();
-        }
-        exit();
-    }
-}
-
-//Add Subscribed email into DB
-function subscribed($email)
-{
-    $options = WPTC_Factory::get('config');
-    $list = $options->get_option('wptc_subscribe');
-    $inserStop = false;
-    if($list!=""&&$list!=null)
-    {
-        $subscribers = unserialize($list);
-        if(in_array($email, $subscribers))
-        {
-            $insertStop = true; 
-        }
-        else
-        {
-            array_push($subscribers,$email);
-        }
-    }
-    else
-    {
-        $subscribers[]=$email;
-    }
-    if(!$insertStop){
-        $str = serialize($subscribers);
-        $options->set_option('wptc_subscribe',$str);
-    }
-}
-
-function initial_setup_notices() {
-global $wpdb;
-$fcount=$wpdb->get_results( 'SELECT COUNT(*) as files FROM '.$wpdb->prefix.'wptc_processed_files' );
-if(!($fcount[0]->files > 0)){
-    ?>
-    <div class="updated">
-        <p>WP Time Capsule is ready to use. <a href="<?php echo admin_url().'admin.php?page=wp-time-capsule-monitor&action=initial_setup'?>">Take your first backup now</a>.</p>
-    </div>
-<?php    
-}
-}
-

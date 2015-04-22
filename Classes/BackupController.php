@@ -1308,6 +1308,8 @@ class WPTC_BackupController
 	
 	$anonymous['server']['PHPDisabledClasses'] = explode(',', ini_get('disable_classes'));	
 	array_walk($anonymous['server']['PHPDisabledClasses'], 'trimValue');
+	
+	$anonymous['browser'] = $_SERVER['HTTP_USER_AGENT'];
         
         return $anonymous;
     }

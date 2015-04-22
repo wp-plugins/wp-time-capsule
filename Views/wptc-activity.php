@@ -136,7 +136,7 @@ class WPTC_List_Table extends WP_List_Table {
 			//How many to display per page?
 			$perpage = 20;
 			//Which page is this?
-			$paged = !empty($_GET["paged"]) ? $_GET["paged"] : ''; if(empty($paged) || !is_numeric($paged) || $paged<=0 ){ $paged=1; }	//Page Number
+			$paged = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : ''; if(empty($paged) || !is_numeric($paged) || $paged<=0 ){ $paged=1; }	//Page Number
 			//How many pages do we have in total?
 			$totalpages = ceil($totalitems/$perpage); //Total number of pages
 			//adjust the query to take pagination into account
