@@ -85,7 +85,7 @@ class WPTC_Logger
         global $wpdb;
         $current_time=time();
         $LogData=  serialize(array('action'=>$type,'log_time'=>$current_time,'msg'=>$msg));
-        $DBLogArray=array('activated_plugin','deactivated_plugin','remove_currentacc','backup_start','backup_progress','backup_error','backup_complete', 'restore_start', 'restore_complete', 'restore_error');
+        $DBLogArray=array('activated_plugin','deactivated_plugin','remove_currentacc','backup_start','backup_progress','backup_error','backup_complete', 'restore_start', 'restore_complete', 'restore_error','connection_error');
         if($action_id=="")
         {
             $action_id=null;

@@ -646,3 +646,4 @@ background-color: rgba(249,246,167,1);
 background-color: rgba(249,246,167,0);
 }
 }
+.cf::after { content:''; display:table; clear: both;}

@@ -1,4 +1,4 @@
-﻿=== WP Time Capsule ===
+=== WP Time Capsule ===
 
 Contributors: WPTimeCapsule, dark-prince, developerbabu
 
@@ -8,7 +8,7 @@ Requires at least: 3.0
 
 Tested up to: 4.1.1
 
-Stable tag: 1.0.0alpha5
+Stable tag: 1.0.0beta1
 
 
 
@@ -23,55 +23,67 @@ Backup only the changed files and DB of your site to your Dropbox. And time-warp
 
 
 **How is WP Time Capsule different than other backup plugins?**
-
-WPTC is unique in 3 ways -<br>
-1. It backs up only the changes and not the entire site every time you take a backup.<br>
-2. We have used Dropbox's unrivalled and time-tested file versioning system to detect changes. With Dropbox as the backend, backups and restores are as reliable as they get.<br>
+WPTC is unique in 3 ways -
+1. It backs up only the changes and not the entire site every time you take a backup.
+2. We have used Dropbox's unrivalled and time-tested file versioning system to detect changes. With Dropbox as the backend, backups and restores are as reliable as they get.
 3. When you apply updates, we will take a backup of your site and then run the update so that we will be restore-ready if needed.
-<br><br>
+
+
+
 **How does it work?**
-<br>
 An initial backup of your whole WordPress site is taken once. After that, only the files and database entries that have changed are backed up and restored. This is done by using Dropbox’s native file versioning system.
-<br><br>
-**Backup**: Looks for files / db changed since the last backup &rarr; Uploads only the changes &rarr; Data stored securely in your Dropbox account.
-<br>
-**Restore**: Checks Dropbox revision history and displays it &rarr; You choose the version to restore &rarr; Restores only the changed files of the selected version.
-<br><br>
-**How is it better?**<br>
-BACKUP METHOD<br>
-Traditionally - Backups are compressed and zipped. The Bad: Heavy server resource consumption.<br>
-WPTC - No zipping. Changed files are dropped into your Dropbox. The Good: ***Uses very less server resource*** 
-<br><br>
-BACKUP FILE<br>
-Traditionally - Multiple zip files are created every time you backup. The Bad: Precious storage space is wasted.<br>
-WPTC - Backs up incrementally. No multiple copies of files. The Good: ***Uses very less disk space***
-<br><br>
-RESTORE<br>
-Traditionally - Unzip backup and restore the whole site. The Bad: Consumes time and server resource.<br>
-WPTC - Restores only selected files. The Good: ***Faster restore***
-<br><br>
-BACKUP BEFORE UPDATE<br>
-Traditionally - Whole site is backed up manually before every update. The Bad: It is laborious and time-consuming.<br>
-WPTC - Takes a backup when you update anything. The Good: ***Automatic backup just before updating***
-<br><br>
-**WP Time Capsule Pro (Coming Soon)**<br>
-AUTO BACKUP<br>
+
+Backup
+Looks for files / db changed since the last backup &rarr; Uploads only the changes &rarr; Data stored securely in your Dropbox account.
+
+Restore
+Checks Dropbox revision history and displays it &rarr; You choose the version to restore &rarr; Restores only the changed files of the selected version.
+
+
+
+**How is it better?**
+BACKUP METHOD
+Traditionally - Backups are compressed and zipped. The Bad: Heavy server resource consumption.
+WPTC - No zipping. Changed files are dropped into your Dropbox. The Good: *Uses very less server resource* 
+
+BACKUP FILE
+Traditionally - Multiple zip files are created every time you backup. The Bad: Precious storage space is wasted.
+WPTC - Backs up incrementally. No multiple copies of files. The Good: *Uses very less disk space*
+
+RESTORE
+Traditionally - Unzip backup and restore the whole site. The Bad: Consumes time and server resource.
+WPTC - Restores only selected files. The Good: *Faster restore*
+
+BACKUP BEFORE UPDATE
+Traditionally - Whole site is backed up manually before every update. The Bad: It is laborious and time-consuming.
+WPTC - Takes a backup when you update anything. The Good: *Automatic backup just before updating*
+
+
+**WP Time Capsule Pro (Coming Soon)**
+AUTO BACKUP
 Changes to the files / database will be auto-detected and backed up instantly.
-<br><br>
-ROLL BACK<br>
+
+ROLL BACK
 In case your website goes down, we will automatically restore the latest backup and notify you.
-<br><br>
-MULTIPLE STAGING ENVIRONMENTS<br>
+
+MULTIPLE STAGING ENVIRONMENTS
 Be it for development or for previewing major updates, the benefits of having multiple staging environments are clear enough.
-<br><br>
+
+
 Visit us at [wptimecapsule.com](http://wptimecapsule.com/ "Incremental Backup for WordPress")
+
+
 
 == Installation ==
 
-Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.<br>
-1. Login to your WordPress dashboard, under Plugins click Add New<br>
-2. In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it<br>
+Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.
+
+1. Login to your WordPress dashboard, under Plugins click Add New
+
+2. In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it
+
 3. Once installed click Activate plugin. You can see the WP Time Capsule plugin in dashboard
+
 
 == Screenshots ==
 
@@ -81,16 +93,34 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 
 == Changelog ==
 
+= 1.0.0beta1 =
+
+* Beta release
+
+
 = 1.0.0alpha5 =
+
 * Feature: Backup scheduling added
+
 * Improvement: Report sending added
+
 * Improvement: Activity log added
+
 * Improvement: UI improvements
+
 * Fix: Bug fixes
+
+
 
 = 1.0.0alpha4 =
+
 * Improvement: Background backup process
+
 * Fix: Bug fixes
 
+
+
 = 1.0.0alpha3 =
+
 * Initial release.
+

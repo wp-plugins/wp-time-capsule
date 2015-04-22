@@ -166,19 +166,19 @@ jQuery(document).ready(function ($) {
         jQuery("#send_issue").live("click", function(){
             var issueForm=jQuery("#TB_window form").serializeArray();
             if((issueForm[0]['value']=="")&&(issueForm[1]['value']=="")){
-                $("input[name='uname']").css("box-shadow", "0px 0px 2px #FA1818");
-                $("input[name='title']").css("box-shadow", "0px 0px 2px #FA1818");
+                $("input[name='cemail']").css("box-shadow", "0px 0px 2px #FA1818");
+                $("textarea[name='desc']").css("box-shadow", "0px 0px 2px #FA1818");
             }
             else if(issueForm[0]['value']==""){
-                 $("input[name='uname']").css("box-shadow", "0px 0px 2px #FA1818");
+                 $("input[name='cemail']").css("box-shadow", "0px 0px 2px #FA1818");
             }
             else if(issueForm[1]['value']==""){
-                 $("input[name='uname']").css("box-shadow", "0px 0px 2px #028202");
-                 $("input[name='title']").css("box-shadow", "0px 0px 2px #FA1818");
+                 $("input[name='cemail']").css("box-shadow", "0px 0px 2px #028202");
+                 $("textarea[name='desc']").css("box-shadow", "0px 0px 2px #FA1818");
             }
             else{
-                $("input[name='uname']").css("box-shadow", "0px 0px 2px #028202");
-                $("input[name='title']").css("box-shadow", "0px 0px 2px #028202");
+                $("input[name='cemail']").css("box-shadow", "0px 0px 2px #028202");
+                $("textarea[name='desc']").css("box-shadow", "0px 0px 2px #028202");
                 sendWTCIssueReport(issueForm);
         }
         });
@@ -197,7 +197,7 @@ jQuery(document).ready(function ($) {
             jQuery.post(ajaxurl, { action : 'get_issue_report_specific', data : rdata }, function(data) {
                 var data=jQuery.parseJSON(data);
                 var form_content='<div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-left">E-mail</div><div class="float-right"><input type="text" style="width:96%" name="cemail" value="'+data.cemail+'"></div></div><div class=row-wptc style="padding: 0 0 3px 0;height: 132px;"><div class="float-left">Description</div><div class="float-right" style=""><textarea cols="37" rows="5" name="desc"></textarea></div></div><div class="row-wptc" style="padding: 0 0 3px 0;" ><div class="float-right" style="padding: 0 0 9px 0;">The report and other logs of the task will be sent.</div><input type="hidden" name="issuedata" id="panelHistoryContent" value=\''+data.idata+'\'></div><div class="row-wptc" style="padding: 0 0 49px 0;"><div class="float-right"><input id="send_issue" class="button button-primary" type="button" value="Send"><input id="cancel_issue" style="margin-left: 3%;" class="button button-primary" type="button" value="Cancel"></div></div>';
-                var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" id="form_report_close"></span><div class="pu_title">Report an Issue</div><form name="issue_form" id="issue_form">'+form_content+'</form></div>';
+                var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" id="form_report_close"></span><div class="pu_title">Send Report</div><form name="issue_form" id="issue_form">'+form_content+'</form></div>';
                 jQuery("#dialog_content_id").html(dialog_content); 
                 jQuery(".thickbox").click();
                 styling_thickbox_tc('report_issue');
@@ -556,6 +556,16 @@ function styling_thickbox_tc(styleType){
 		jQuery("#TB_ajaxContent").css("max-height", "600px");
 		jQuery("#TB_ajaxContent").css("height", "auto");
         }
+        else if(styleType == 'initial_backup'){
+            jQuery("#TB_window").width("630px");
+            jQuery("#TB_ajaxContent").width("630px");
+            jQuery("#TB_ajaxContent").css("padding", "0px");
+            jQuery("#TB_ajaxContent").css("overflow", "hidden");
+            jQuery("#TB_ajaxContent").css("max-height", "500px");
+            jQuery("#TB_ajaxContent").css("min-height","225px");
+            jQuery("#TB_ajaxContent").css("height","auto");
+            jQuery("#TB_overlay").attr("onclick","tb_remove()");
+        }
 	else
 	{
 		jQuery("#TB_window").width("791px");
@@ -580,7 +590,7 @@ function issue_repoting_form(){
     jQuery.post(ajaxurl, { action : 'get_issue_report_data' }, function(data) {
     var data=jQuery.parseJSON(data);
     var form_content='<div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-left">Name</div><div class="float-right"><input type="text" style="width:96%" name="uname" value="'+data.lname+'"></div></div><div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-left">Title</div><div class="float-right"><input type="text" style="width:96%" name="title"></div></div><div class="row-wptc" style="height: 132px;"><div class="float-left">Issue Data</div><div class="float-right"><textarea name="issuedata" id="panelHistoryContent" cols="37" rows="5" readonly class="disabled">' + data.idata+ '</textarea></div></div><div class=row-wptc style="padding: 0 0 49px 0;"><div class="float-right"><input id="send_issue" class="button button-primary" type="button" value="Send"><input id="cancel_issue" style="margin-left: 3%;" class="button button-primary" type="button" value="Cancel"></div></div>';
-    var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" id="form_report_close"></span><div class="pu_title">Report an Issue</div><form name="issue_form" id="issue_form">'+form_content+'</form></div>';
+    var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" id="form_report_close"></span><div class="pu_title">Send Report</div><form name="issue_form" id="issue_form">'+form_content+'</form></div>';
     jQuery("#dialog_content_id").html(dialog_content); 
     jQuery(".thickbox").click();
     styling_thickbox_tc('report_issue');
@@ -590,7 +600,7 @@ function issue_repoting_form(){
 
 function sendWTCIssueReport(issueData)
 {
-    console.log(issueData);
+    //console.log(issueData);
     var email = issueData[0]['value'];
     var desc = issueData[1]['value'];
     var issue = issueData[2]['value'];
@@ -634,4 +644,22 @@ function yes_delete_logs(){
 function reload_monitor_page()
 {
     location.reload();
+}
+
+//Function for open dialog box for initial setup - backup process
+function freshBackupPopUpShow()
+{
+    
+      var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><span class="dialog_close"></span><div class="pu_title">Your first backup</div><div class="wcard clearfix" style="width:480px"><div class="l1">Do you want to backup your site now?</div><a style="margin-left: 29px;" class="btn_pri" onclick="initialSetupBackup()">Yes. Backup now.</a><a class="btn_sec" id="no_change" onclick="tb_remove()">No. I will do it later.</a></div></div>';
+    setTimeout(function() {
+        jQuery("#dialog_content_id").html(dialog_content);
+        jQuery(".thickbox").click();
+        styling_thickbox_tc('initial_backup');
+    }, 3000);
+
+}
+
+function initialSetupBackup(){
+    jQuery('#start_backup').click()
+    tb_remove();
 }
