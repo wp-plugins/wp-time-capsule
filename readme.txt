@@ -2,7 +2,7 @@
 
 Contributors: WPTimeCapsule, dark-prince, developerbabu
 
-Tags: wptimecapsule, wordpress backup, dropbox backup, wordpress incremental backup, backup without zip
+Tags: wptimecapsule, wordpress backup, dropbox backup, wordpress incremental backup, backup without zip, wptc, wp time capsule
 
 Requires at least: 3.0
 
