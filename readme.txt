@@ -33,9 +33,9 @@ WPTC is unique in 3 ways -<br>
 <br>
 An initial backup of your whole WordPress site is taken once. After that, only the files and database entries that have changed are backed up and restored. This is done by using Dropbox’s native file versioning system.
 <br><br>
-**Backup**: Looks for files / db changed since the last backup -> Uploads only the changes -> Data stored securely in your Dropbox account.
+**Backup**: Looks for files / db changed since the last backup &rarr; Uploads only the changes &rarr; Data stored securely in your Dropbox account.
 <br>
-**Restore**: Checks Dropbox revision history and displays it -> You choose the version to restore -> Restores only the changed files of the selected version.
+**Restore**: Checks Dropbox revision history and displays it &rarr; You choose the version to restore &rarr; Restores only the changed files of the selected version.
 <br><br>
 **How is it better?**<br>
 BACKUP METHOD<br>
