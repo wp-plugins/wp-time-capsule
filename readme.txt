@@ -93,7 +93,7 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 
 == Changelog ==
 
-= 1.0.0beta1 =
+= 1.0.0beta1 (22 Apr 2015) =
 
 * Beta release
 
