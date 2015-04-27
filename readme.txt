@@ -76,9 +76,11 @@ Credits: Michael De Wildt for his WordPress Backup to Dropbox plugin based on wh
 
 = Installation =
 Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.<br>
- 1. Login to your WordPress dashboard, under Plugins click Add New
- 2. In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it
- 3. Once installed click Activate plugin. You can see the WP Time Capsule plugin in dashboard
+<ol>
+  <li>Login to your WordPress dashboard, under Plugins click Add New</li>
+  <li>In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it</li>
+  <li>Once installed click Activate plugin. You can see the WP Time Capsule plugin in dashboard</li>
+</ol>
 
 == Screenshots ==
 
