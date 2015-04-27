@@ -6,12 +6,28 @@ Description: Incremental Backup Plugin - After the initial full backup to Dropbo
 Author: Revmakx
 Version: 1.0.0beta1
 Author URI: http://www.revmakx.com.
+Tested up to: 4.2
 /************************************************************
- * This plugin was modified by Revmakx						*
- * Copyright (c) 2014 Revmakx								*
- * www.revmakx.com		
- *															*
- ************************************************************
+ * This plugin was modified by Revmakx
+ * Copyright (c) 2014 Revmakx
+ * www.revmakx.com
+ ************************************************************/
+
+ /* @copyright Copyright (C) 2011-2014 Awesoft Pty. Ltd. All rights reserved.
+ * @author Michael De Wildt (http://www.mikeyd.com.au/)
+ * @license This program is free software; you can redistribute it and/or modify
+ *          it under the terms of the GNU General Public License as published by
+ *          the Free Software Foundation; either version 2 of the License, or
+ *          (at your option) any later version.
+ *
+ *          This program is distributed in the hope that it will be useful,
+ *          but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *          GNU General Public License for more details.
+ *
+ *          You should have received a copy of the GNU General Public License
+ *          along with this program; if not, write to the Free Software
+ *          Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA.
 */
 define('WPTC_TEMP_COOKIE_FILE', str_replace('/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR.'/backups/tempCookie.txt'));
 define('WPTC_VERSION', '1.0.0beta1');
@@ -831,7 +847,6 @@ function send_wtc_issue_report(){
     curl_setopt($ch, CURLOPT_URL, WPTC_APSERVER_URL."/report_issue/index.php");
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_POSTREDIR, 3);
     curl_setopt($ch, CURLOPT_POSTFIELDS,"type=issue&issue=".$idata."&useremail=".$current_user."&title=".$desc."&rand=".$random);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
@@ -896,7 +911,6 @@ function anonymous_event() {
     curl_setopt($ch, CURLOPT_URL, WPTC_APSERVER_URL."/anonymous_data/index.php");
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_POSTREDIR, 3);
     curl_setopt($ch, CURLOPT_POSTFIELDS,"type=anonymous&data=".$anonymousData."&app_hash=".$app_hash."&rand=".$random);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_exec($ch);
@@ -954,11 +968,7 @@ add_action('admin_init', 'wptc_init');
 add_action('admin_enqueue_scripts', 'wptc_style');
 add_action( 'wp', 'wptc_setup_schedule' );
 
-add_action( 'load-index.php', 
-    function(){
-        add_action( 'admin_notices', 'initial_setup_notices' );
-    }
-);
+add_action( 'load-index.php','admin_notice_on_dashboard'); 
 //i18n language text domain
 load_plugin_textdomain('wptc', false, 'wp-time-capsule/Languages/');
 
@@ -1001,13 +1011,13 @@ if (is_admin()) {
 function WTC_Log_on_activation()
 {
      $logger = WPTC_Factory::get('logger');
-     $logger->log('WTCapsule Activated','activated_plugin');
+     $logger->log('WP Time Capsule Activated','activated_plugin');
 }
 
 function WCM_Log_on_deactivation()
 {
     $logger = WPTC_Factory::get('logger');
-    $logger->log('WTCapsule Deactivated','deactivated_plugin');
+    $logger->log('WP Time Capsule Deactivated','deactivated_plugin');
 }
 
 register_activation_hook(   __FILE__, 'WTC_Log_on_activation' );
@@ -1116,7 +1126,6 @@ function wptc_subscribe_me(){
     curl_setopt($ch, CURLOPT_URL, WPTC_APSERVER_URL."/subscribe_me/index.php");
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_POSTREDIR, 3);
     curl_setopt($ch, CURLOPT_POSTFIELDS,"email=".$email."&fname=".$fname."&lname=".$lname);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
@@ -1197,3 +1206,6 @@ if(!($fcount[0]->files > 0)){
 }
 }
 
+function admin_notice_on_dashboard(){
+        add_action( 'admin_notices', 'initial_setup_notices' );
+}
