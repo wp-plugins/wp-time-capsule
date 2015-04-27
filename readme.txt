@@ -75,7 +75,7 @@ Credits: Michael De Wildt for his WordPress Backup to Dropbox plugin based on wh
  * MySQL version 5.0.15 or greater (recommended: MySQL 5.5 or greater)
 
 = Installation =
-Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.<br>
+Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.
 <ol>
   <li>Login to your WordPress dashboard, under Plugins click Add New</li>
   <li>In the plugin repository search for WP Time Capsule or upload the download the plugin zip and install it</li>
