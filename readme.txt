@@ -1,14 +1,14 @@
-﻿=== WP Time Capsule ===
+=== WP Time Capsule ===
 
 Contributors: WPTimeCapsule, dark-prince, developerbabu
 
 Tags: wptimecapsule, wordpress backup, dropbox backup, wordpress incremental backup, backup without zip
 
-Requires at least: 3.0
+Requires at least: 3.2
 
-Tested up to: 4.1.1
+Tested up to: 4.2
 
-Stable tag: 1.0.0alpha5
+Stable tag: 1.0.0beta1
 
 
 
@@ -66,7 +66,13 @@ Be it for development or for previewing major updates, the benefits of having mu
 <br><br>
 Visit us at [wptimecapsule.com](http://wptimecapsule.com/ "Incremental Backup for WordPress")
 
+Credits: Michael De Wildt for his WordPress Backup to Dropbox plugin based on which this plugin is being developed.
+
+
 == Installation ==
+*Requirements*
+PHP version 5.2.17 or greater (recommended: PHP 5.4 or greater)
+MySQL version 5.0.15 or greater (recommended: MySQL 5.5 or greater)
 
 Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.<br>
 1. Login to your WordPress dashboard, under Plugins click Add New<br>
@@ -81,16 +87,34 @@ Installing WP Time Capsule is simple and easy. Install it like any other WordPre
 
 == Changelog ==
 
+= 1.0.0beta1(27 April 2015) =
+
+* Beta release
+
+
 = 1.0.0alpha5 =
+
 * Feature: Backup scheduling added
+
 * Improvement: Report sending added
+
 * Improvement: Activity log added
+
 * Improvement: UI improvements
+
 * Fix: Bug fixes
+
+
 
 = 1.0.0alpha4 =
+
 * Improvement: Background backup process
+
 * Fix: Bug fixes
 
+
+
 = 1.0.0alpha3 =
+
 * Initial release.
+

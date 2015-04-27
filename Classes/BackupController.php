@@ -67,12 +67,12 @@ class WPTC_BackupController
         if (file_exists($path)) {
             $source = realpath($path);
             
-			$Mdir  = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
+			$Mdir  = new RecursiveDirectoryIterator($source);
 			$Mfile = new RecursiveIteratorIterator($Mdir, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
                         $total_files = iterator_count($Mfile);
                         if(!$content_flag)
                         {
-                             $contDir = new RecursiveDirectoryIterator(realpath(WP_CONTENT_DIR), RecursiveDirectoryIterator::SKIP_DOTS);
+                             $contDir = new RecursiveDirectoryIterator(realpath(WP_CONTENT_DIR));
                              $contfiles = new RecursiveIteratorIterator($contDir, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
                              $TFiles[0] = $contfiles;
                              $TFiles[1] = $Mfile;
@@ -596,7 +596,8 @@ class WPTC_BackupController
 		$plugin_bridge_file_path = $plugin_path_tc . '/wp-tcapsule-bridge';
 		$current_bridge_file_name = $this->config->get_option('current_bridge_file_name');
 		$root_bridge_file_path = ABSPATH . '/' . $current_bridge_file_name;
-		
+		$restore_id = WPTC_Factory::get('config')->get_option('restore_action_id');
+                $logger = WPTC_Factory::get('logger');
 		$this_config_like_file = $this->create_config_like_file();
 		
 		$files_other_than_bridge = array();
@@ -623,6 +624,7 @@ class WPTC_BackupController
 			if ( !$wp_filesystem->mkdir($root_bridge_file_path, FS_CHMOD_DIR) )
 			{
 				//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----root folder creation error------- ".var_export($root_bridge_file_path,true)."\n",FILE_APPEND);
+                                $logger->log('Failed to create bridge directory while restoring . Check your folder permissions','restore_error',$restore_id);
 				return false;
 			}
 		}
@@ -632,6 +634,7 @@ class WPTC_BackupController
 		if(!$copy_res)
 		{
 			//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----copy false------- \n",FILE_APPEND);
+                        $logger->log('Failed to Copying Downloaded files','restore_error',$restore_id);
 			return false;
 		}
 		
@@ -977,7 +980,7 @@ class WPTC_BackupController
             global $wp_filesystem;
             //Get the known files (backup done files ) and eliminate the known value's in unknown array
             $homepath=get_tcsanitized_home_path();
-            $DirIter = new RecursiveDirectoryIterator($homepath, RecursiveDirectoryIterator::SKIP_DOTS);
+            $DirIter = new RecursiveDirectoryIterator($homepath);
             $FileIter = new RecursiveIteratorIterator($DirIter, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
             foreach($all_processed_files as $value)
             {
@@ -1308,8 +1311,6 @@ class WPTC_BackupController
 	
 	$anonymous['server']['PHPDisabledClasses'] = explode(',', ini_get('disable_classes'));	
 	array_walk($anonymous['server']['PHPDisabledClasses'], 'trimValue');
-	
-	$anonymous['browser'] = $_SERVER['HTTP_USER_AGENT'];
         
         return $anonymous;
     }
