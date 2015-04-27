@@ -70,9 +70,9 @@ Credits: Michael De Wildt for his WordPress Backup to Dropbox plugin based on wh
 
 
 == Installation ==
-**Requirements**<br>
-PHP version 5.2.17 or greater (recommended: PHP 5.4 or greater)
-MySQL version 5.0.15 or greater (recommended: MySQL 5.5 or greater)
+= Minimum Requirements =
+ * PHP version 5.2.17 or greater (recommended: PHP 5.4 or greater)
+ * MySQL version 5.0.15 or greater (recommended: MySQL 5.5 or greater)
 <br>
 <br>
 Installing WP Time Capsule is simple and easy. Install it like any other WordPress plugin.<br>
