@@ -423,7 +423,9 @@ try {
                <?php if(isset($_GET['error'])&&!$dropbox->is_authorized()): ?>
             <?php $dropbox->unlink_account()->init(); ?>
                 <div style="width: 100%">
-                    <p style="width: 40%; margin-left: 30%; text-align: center; padding: 1%; font-weight: bolder; background: none repeat scroll 0% 0% rgba(255, 0, 0, 0.1); color: rgba(255, 0, 0, 0.59);"><?php _e('Something went wrong while authorizing with your Dropbox account. Please try again.', 'wptc'); ?></p>
+                    <p style="width: 40%; margin-left: 30%; text-align: center; padding: 1%; font-weight: bolder; background: none repeat scroll 0% 0% rgba(255, 0, 0, 0.1); color: rgba(255, 0, 0, 0.59);">Something went wrong while authorising your Dropbox account.<br>
+Please try again after sometime, or <br>
+Clear your Dropbox session and try again.</p>
                 </div>
         <?php endif; ?>
 		
