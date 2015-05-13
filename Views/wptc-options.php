@@ -241,7 +241,7 @@ try {
 					<?php echo $used . 'GB of ' . $quota . 'GB used'; ?>
 				</p>
 				<div class="dbox_quota"> <span style="width:<?php echo round(($used / $quota) * 100, 0);?>%"> </span> </div>
-				<input type="submit" style="display:none" id="unlink" name="unlink" class="bump button-secondary" value="<?php _e('Unlink Account', 'wptc'); ?>">
+				<input type="submit" style="display:none" id="unlink" name="unlink" class="bump button-secondary" value="Unlink Account">
             </td>
         </tr>
         <tr valign="top">
@@ -257,8 +257,7 @@ try {
             </td>
         </tr>
         <tr valign="top">
-            <th scope="row"> <label>
-			<?php _e("Backups before updating", 'wptc'); ?> </label>
+            <th scope="row"> <label>Backup before updating</label>
             </th>
             <td>
 				<fieldset>
@@ -284,12 +283,12 @@ try {
 						</span>
 					</label>
 					<br>
+                                        <p class="description">A backup of the changed files will be taken before updating the core, plugins or themes.</p>
 				</fieldset>
             </td>
         </tr>
         <tr valign="top">
-            <th scope="row"> <label>
-			<?php _e("Send anonymous data", 'wptc'); ?> </label>
+            <th scope="row"> <label>Send anonymous data</label>
             </th>
             <td>
 				<fieldset>
@@ -308,6 +307,7 @@ try {
 						</span>
 					</label>
 					<br>
+                                        <p class="description">Non-personally identifiable usage data will be sent for the sole purpose of improvement of the plugin.</p>
 				</fieldset>
             </td>
         </tr>
@@ -315,7 +315,7 @@ try {
             <?php
             $tzstring = $config -> get_option('wptc_timezone');
             ?>
-            <th scope="row"><label for="timezone_string"><?php _e('Timezone') ?></label></th>
+            <th scope="row"><label for="timezone_string">Timezone</label></th>
             <td>
                 <select id="wptc_timezone" name="wptc_timezone"><?php echo select_wptc_timezone(); ?></select>
             </td>
@@ -341,7 +341,7 @@ try {
         <tr class="wptc_schedule" style="display: none">
             <th></th>
             <td>
-                <div><p class="description">You need to set a cron job on your server to schedule backups<br><code>*/10 * * * * wget <?php echo site_url( 'wp-cron.php' );?>> /dev/null 2>&1</code><br>This will run wp-cron every 10 minutes. You can change<code>*/10</code> to <code>*/5</code> to make it run every 5 minutes.</p></div>
+                <div><p class="description">You need to set a cron job on your server to schedule backups<br><code>*/10 * * * * wget <?php echo site_url( 'wp-cron.php' );?>> /dev/null 2>&1</code><br>This will run wp-cron every 10 minutes. You can change<code>*/10</code> to <code>*/5</code> to make it run every 5 minutes.<br/><a target="_blank" href="https://developer.wordpress.org/plugins/cron/hooking-into-the-system-task-scheduler/">See instructions</a></p></div>
                 <div>
                 <br>
                     <div class="sch">
@@ -400,7 +400,7 @@ try {
     <!--[if !IE | gt IE 7]><!-->
     <!--<![endif]-->
     <p class="submit">
-        <input type="submit" id="wptc_save_changes" name="wptc_save_changes" class="button-primary" value="<?php _e('Save Changes', 'wptc'); ?>">
+        <input type="submit" id="wptc_save_changes" name="wptc_save_changes" class="button-primary" value="Save Changes">
     </p>
         <?php wp_nonce_field('wordpress_time_capsule_options_save'); ?>
     </form>
@@ -410,22 +410,22 @@ try {
     } else {
         ?>
 		
-		<div class="pu_title"><?php _e('Welcome to WP Time Capsule', 'wptc'); ?></div>
+		<div class="pu_title">Welcome to WP Time Capsule</div>
 		<div class="wcard clearfix">
-	    <div class="l1"  style="padding-bottom: 10px;"><?php _e('Once you connect your Dropbox account, the backups that
-	    you create will be stored in the assigned folder in your account.', 'wptc'); ?></div>
+	    <div class="l1"  style="padding-bottom: 10px;">Once you connect your Dropbox account, the backups that
+	    you create will be stored in the assigned folder in your account</div>
 		<form id="backup_to_dropbox_continue" name="backup_to_dropbox_continue" method="post">
-                    <input type="button" name="authorize" id="authorize" class="btn_pri" style="margin: 20px 59px; width: 330px; text-align: center;" value="<?php _e('Connect my Dropbox account', 'wptc'); ?>" onclick="dropbox_authorize('<?php echo $dropbox->get_authorize_url() ?>')"/><div style="clear:both"></div>
-                        <div id="mess" style="text-align: center; font-size: 13px; padding-top: 20px; padding-bottom: 10px;">This will connect to Dropbox in a new tab. Once your account is connected, come back to this page and click Continue.</div>
-			<input type="button" name="continue" id="continue" class="btn_pri" style="margin: 0 95px 20px; width: 250px; text-align: center; display: none;" value="<?php _e('Continue', 'wptc'); ?>" />
+                    <input type="button" id="connect_to_dropbox" class="btn_pri" style="margin: 20px 59px; width: 330px; text-align: center;" value="Connect my Dropbox account" >
+                    <div style="clear:both"></div>
+                    <div id="mess" style="text-align: center; font-size: 13px; padding-top: 20px; padding-bottom: 10px;">You will be redirected to Dropbox for allowing access to the plugin.<br> Click on <strong>Allow</strong> when prompted.</div>
+			<input type="button" name="continue" id="continue" class="btn_pri" style="margin: 0 95px 20px; width: 250px; text-align: center; display: none;" value="Continue" />
 		</form>
 		</div>
-               <?php if(isset($_GET['error'])&&!$dropbox->is_authorized()): ?>
+               <?php if(isset($_GET['not_approved'])&&!$dropbox->is_authorized()): ?>
             <?php $dropbox->unlink_account()->init(); ?>
                 <div style="width: 100%">
-                    <p style="width: 40%; margin-left: 30%; text-align: center; padding: 1%; font-weight: bolder; background: none repeat scroll 0% 0% rgba(255, 0, 0, 0.1); color: rgba(255, 0, 0, 0.59);">Something went wrong while authorising your Dropbox account.<br>
-Please try again after sometime, or <br>
-Clear your Dropbox session and try again.</p>
+                    <p style="width: 40%; margin-left: 30%; text-align: center; padding: 1%; font-weight: bolder; background: none repeat scroll 0% 0% rgba(255, 0, 0, 0.1); color: rgba(255, 0, 0, 0.59);">You are not Authorize our App in your Dropbox<br>
+Kindly accept it</p>
                 </div>
         <?php endif; ?>
 		

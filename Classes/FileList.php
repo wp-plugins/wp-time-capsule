@@ -24,7 +24,7 @@ class WPTC_FileList
         '.DS_Store', 'Thumbs.db', 'desktop.ini',
         '.git', '.gitignore', '.gitmodules',
         '.svn', '.dropbox',
-        '.sass-cache',
+        '.sass-cache','cgi-bin'
     );
 
     private

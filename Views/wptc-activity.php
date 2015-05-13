@@ -193,20 +193,17 @@ class WPTC_List_Table extends WP_List_Table {
                             if(count($sub_records)>0)
                             {
                                 $more_logs = true;
-                                $More_cont = '<div class="more_ul"><ul>';
-                                $More_time = '<div><ul>';
+                                $detailed = '<table>';
                                 foreach ($sub_records as $srec) 
                                 {
                                     $Moredata=unserialize($srec->log_data);
                                     $dcell=gmdate("Y-m-d h:i:s", $Moredata['log_time']);
                                     $user_tmz = new DateTime($dcell, new DateTimeZone('UTC') );
                                     $user_tmz->setTimeZone(new DateTimeZone($timezone));
-                                    $user_tmz_now =  $user_tmz->format("M d, Y @ g:i:s a");
-                                    $More_cont.= '<li>'.$Moredata['msg'].'</li>';
-                                    $More_time.= '<li>'.$user_tmz_now.'</li>';
+                                    $user_tmz_now =  $user_tmz->format("g:i:s a");
+                                    $detailed.= '<tr><td>'.$user_tmz_now.'</td><td>'.$Moredata['msg'].'</td><td></td></tr>';
                                 }
-                                $More_cont.= '</ul></div>';
-                                $More_time.= '</ul></div>';
+                                $detailed.= '</table>';
                                 
                             }
                         }
@@ -251,7 +248,7 @@ class WPTC_List_Table extends WP_List_Table {
                                  if($more_logs)
                                  {
                                     
-                                     echo "</tr><tr id='".round($rec->action_id)."' class='more_logs'><td>".$More_time."</td><td>".$More_cont."</td>";
+                                     echo "</tr><tr id='".round($rec->action_id)."' class='more_logs'><td colspan=3>".$detailed."</td>";
                                  }
                                  else
                                  {
@@ -262,6 +259,92 @@ class WPTC_List_Table extends WP_List_Table {
 			}
 			
 		}
+	}
+        //Overwrite Pagination function
+        function pagination( $which ) {
+		if ( empty( $this->_pagination_args ) ) {
+			return;
+		}
+
+		$total_items = $this->_pagination_args['total_items'];
+		$total_pages = $this->_pagination_args['total_pages'];
+		$infinite_scroll = false;
+		if ( isset( $this->_pagination_args['infinite_scroll'] ) ) {
+			$infinite_scroll = $this->_pagination_args['infinite_scroll'];
+		}
+
+		$output = '<span class="displaying-num">' . sprintf( _n('1 log', '%s logs', $total_items, 'wptc' ), number_format_i18n( $total_items ) ) . '</span>';
+
+		$current = $this->get_pagenum();
+
+		$current_url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+
+		$current_url = remove_query_arg( array( 'hotkeys_highlight_last', 'hotkeys_highlight_first' ), $current_url );
+
+		$page_links = array();
+
+		$disable_first = $disable_last = '';
+		if ( $current == 1 ) {
+			$disable_first = ' disabled';
+		}
+		if ( $current == $total_pages ) {
+			$disable_last = ' disabled';
+		}
+		$page_links[] = sprintf( "<a class='%s' title='%s' href='%s'>%s</a>",
+			'first-page' . $disable_first,
+			esc_attr__( 'Go to the first page' ),
+			esc_url( remove_query_arg( 'paged', $current_url ) ),
+			'&laquo;'
+		);
+
+		$page_links[] = sprintf( "<a class='%s' title='%s' href='%s'>%s</a>",
+			'prev-page' . $disable_first,
+			esc_attr__( 'Go to the previous page' ),
+			esc_url( add_query_arg( 'paged', max( 1, $current-1 ), $current_url ) ),
+			'&lsaquo;'
+		);
+
+		if ( 'bottom' == $which ) {
+			$html_current_page = $current;
+		} else {
+			$html_current_page = sprintf( "%s<input class='current-page' id='current-page-selector' title='%s' type='text' name='paged' value='%s' size='%d' />",
+				'<label for="current-page-selector" class="screen-reader-text">' . __( 'Select Page' ) . '</label>',
+				esc_attr__( 'Current page' ),
+				$current,
+				strlen( $total_pages )
+			);
+		}
+		$html_total_pages = sprintf( "<span class='total-pages'>%s</span>", number_format_i18n( $total_pages ) );
+		$page_links[] = '<span class="paging-input">' . sprintf( _x( '%1$s of %2$s', 'paging' ), $html_current_page, $html_total_pages ) . '</span>';
+
+		$page_links[] = sprintf( "<a class='%s' title='%s' href='%s'>%s</a>",
+			'next-page' . $disable_last,
+			esc_attr__( 'Go to the next page' ),
+			esc_url( add_query_arg( 'paged', min( $total_pages, $current+1 ), $current_url ) ),
+			'&rsaquo;'
+		);
+
+		$page_links[] = sprintf( "<a class='%s' title='%s' href='%s'>%s</a>",
+			'last-page' . $disable_last,
+			esc_attr__( 'Go to the last page' ),
+			esc_url( add_query_arg( 'paged', $total_pages, $current_url ) ),
+			'&raquo;'
+		);
+
+		$pagination_links_class = 'pagination-links';
+		if ( ! empty( $infinite_scroll ) ) {
+			$pagination_links_class = ' hide-if-js';
+		}
+		$output .= "\n<span class='$pagination_links_class'>" . join( "\n", $page_links ) . '</span>';
+
+		if ( $total_pages ) {
+			$page_class = $total_pages < 2 ? ' one-page' : '';
+		} else {
+			$page_class = ' no-pages';
+		}
+		$this->_pagination = "<div class='tablenav-pages{$page_class}'>$output</div>";
+
+		echo $this->_pagination;
 	}
 }?>
 

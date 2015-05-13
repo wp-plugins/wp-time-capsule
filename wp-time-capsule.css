@@ -587,7 +587,7 @@
     color: #D00;
 }
 .act-td{
-    border-bottom: 1px solid rgb(229, 229, 229);
+    border-top: 1px solid rgb(229, 229, 229);
 }
 .sch{
     display:inline-block;

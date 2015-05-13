@@ -38,11 +38,9 @@ class WPTC_Extension_DefaultOutput extends WPTC_Extension_Base
     {
         if ($this->error_count > self::MAX_ERRORS)
         {
-            WPTC_Factory::get('logger')->log(sprintf(__("The backup is having trouble uploading files to Dropbox, it has failed %s times and is aborting the backup.", 'wptc'), self::MAX_ERRORS),'backup_error');
             throw new Exception(sprintf(__('The backup is having trouble uploading files to Dropbox, it has failed %s times and is aborting the backup.', 'wptc'), self::MAX_ERRORS));
         }
         if (!$this->dropbox){
-            WPTC_Factory::get('logger')->log(sprintf(__("The backup is having trouble uploading files to Dropbox, it has failed %s times and is aborting the backup.", 'wptc'), self::MAX_ERRORS),'backup_error');
             throw new Exception(__("Dropbox API not set"));
         }
         $dropbox_path = $this->config->get_dropbox_path($source, $file, $this->root);
@@ -77,12 +75,12 @@ class WPTC_Extension_DefaultOutput extends WPTC_Extension_Base
 				//}
 			}
 			else{
-				if(filemtime($file) > $this->config->get_option('last_backup_time')){
-					//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----dropbox output from metadata-----for ".var_export($file,true)."\n",FILE_APPEND);
-					$dropbox_file_path = $dropbox_path .'\\'. basename($file);
-					return $this->dropbox->get_file_details($dropbox_file_path);
-				}
-				return false;
+//				if(filemtime($file) > $this->config->get_option('last_backup_time')){
+//					//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----dropbox output from metadata-----for ".var_export($file,true)."\n",FILE_APPEND);
+//					$dropbox_file_path = $dropbox_path .'\\'. basename($file);
+//					return $this->dropbox->get_file_details($dropbox_file_path);
+//				}
+				return 'exist';
 			}
 
         } catch (Exception $e) {
@@ -91,9 +89,9 @@ class WPTC_Extension_DefaultOutput extends WPTC_Extension_Base
 			
 			//if there is any error we are showing it via ajax
 			$error_array = array();
+                        $error_array['message'] = "Error uploading $file to Dropbox";
 			$error_array['error'] = strip_tags($e->getMessage());
-			echo json_encode($error_array);
-			exit;
+			return $error_array;
         }
     }
 	

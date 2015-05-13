@@ -22,9 +22,9 @@ class WPTC_Logger
 
     private $logFile = null;
 
-    public function log($msg, $type = "",$action_id = "" )
+    public function log($msg, $type = "",$action_id = "",$data=null )
     {
-        $this->set_log_now($type,$msg,$action_id);
+        $this->set_log_now($type,$msg,$action_id,$data);
 		//return true;
         //$fh = fopen($this->get_log_file(), 'a');
 
@@ -80,11 +80,11 @@ class WPTC_Logger
 		return $this->logFile;
     }
      
-    public function set_log_now($type,$msg,$action_id)
+    public function set_log_now($type,$msg,$action_id,$data)
     {
         global $wpdb;
         $current_time=time();
-        $LogData=  serialize(array('action'=>$type,'log_time'=>$current_time,'msg'=>$msg));
+        $LogData=  serialize(array('action'=>$type,'log_time'=>$current_time,'msg'=>$msg,'data'=>$data));
         $DBLogArray=array('activated_plugin','deactivated_plugin','remove_currentacc','backup_start','backup_progress','backup_error','backup_complete', 'restore_start', 'restore_complete', 'restore_error','connection_error');
         if($action_id=="")
         {

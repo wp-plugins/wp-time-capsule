@@ -50,9 +50,16 @@ if (array_key_exists('stop_backup', $_POST)) {
 $freshbackupPopUp=false;
 if(isset($_GET['action']))
 {
-    $initial_setup=$_GET['action'];
+    if($_GET['action']=='initial_setup')
+    {
+        $initial_setup=true;
+    }
 }
-if($fresh=='yes'&&$initial_setup=='initial_setup')
+if(isset($_GET['oauth_token']))
+{
+    $initial_setup = true;
+}
+if($fresh=='yes'&&$initial_setup)
 {
     $freshbackupPopUp = true;
 }
@@ -66,11 +73,14 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 <script type="text/javascript" language="javascript">
     var sitename='<?php echo get_bloginfo( 'name' );?>';
     var fresh='<?php echo $fresh;?>';
+    var bp_in_progress = false;
+    checkbackup_is_running();
     function wtc_reload() {
 		//console.log('calling reload');
 		jQuery('.files').hide();
         jQuery.post(ajaxurl, { action : 'progress' }, function(data) {
             if (data.length) {
+                checkbackup_is_running();
                 jQuery('#progress').html('<div class="calendar_wrapper"></div>');
 				jQuery("#progress").append('<div id="dialog_content_id" style="display:none;"> <p> This is my hidden content! It will appear in ThickBox when the link is clicked. </p></div><a class="thickbox" style="display:none" href="#TB_inline?width=500&height=500&inlineId=dialog_content_id&modal=true"></a>');
 				
@@ -82,8 +92,24 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 						if((data['backup_progress'] == '')&&(backup_end == true))
 						{
 							jQuery("#start_backup").val('Backup Now');
+                                                        jQuery("#stop_backup").val('Backup Now');
 						}
-					}
+                                        }
+                                        if(data['progress_complete']==true)
+                                        {
+                                            var Sback = jQuery('#stop_backup');
+                                            var Bback = jQuery('#start_backup');
+                                            if(Sback.html()=='Stop Backup')
+                                            {
+                                                Sback.html('Backup Now');
+                                                bp_in_progress=false;
+                                            }
+                                            if(Bback.html=='Stop Backup')
+                                            {
+                                                Bback.html('Backup Now');
+                                                bp_in_progress=false;
+                                            }
+                                        }
 				}
 				jQuery('.calendar_wrapper').fullCalendar({
 					theme: false,
@@ -96,6 +122,25 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 					editable: false,
 					events: data['stored_backups'],
 				});
+                                if(typeof data != 'undefined')
+				{
+					if(!((typeof data['backup_progress'] != 'undefined')&&(typeof backup_end != 'undefined'))){
+                                             if(jQuery("#dialog_content_id").css('display') == 'none')
+                                            {   
+                                                var backup_progress = data['backup_progress']
+                                                if(data['backup_progress']!="")
+                                                {
+                                                    var progress_val = (backup_progress['processed_totcount']/parseInt(backup_progress['overall_files']))*100;
+                                                    var prog_con = '<div class="bp_progress_bar_cont"><div class="bp_progress_msg">Backup in progress...</div><div class="bp_progress_bar" style="width:'+progress_val+'%"></div></div>';
+                                                }
+                                                else
+                                                {
+                                                    var prog_con = '';
+                                                }
+                                                jQuery('tr>td:first.fc-header-right').append(prog_con);
+                                            }
+                                        }
+                                }
 				//org function not required
                 /* jQuery('.view-files').on('click', function() {
                     $files = jQuery(this).next();
@@ -105,7 +150,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
                         $this = jQuery(this);
                         $this.css(
                             'background',
-                            'url(<?php echo $uri ?>/JQueryFileTree/images/' + $this.text().slice(-3).replace(/^\.+/,'') + '.png) left top no-repeat'
+                            'url(<?php //echo $uri ?>/JQueryFileTree/images/' + $this.text().slice(-3).replace(/^\.+/,'') + '.png) left top no-repeat'
                         );
                     });
 
@@ -114,8 +159,8 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 					//console.log('clicking');
 					var thisDayBackups = getThisDayBackups(jQuery(this).attr("backupids"));
 				});  */
-				
-				
+    
+						
             }
         });
 		
@@ -771,7 +816,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 					startBridgeCopy(start_bridge);
 					checkIfNoResponse('startBridgeCopy');
 				}
-			}
+                                }
 		  // End success
 		});
 		//startRestoreTimeout = setTimeout(function(){startRestore();}, 15000);
@@ -965,7 +1010,32 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 			}
 		});
 	}
+        
+        //Initial backup name storing
+        function initial_backup_name_store(){
+                jQuery.post(ajaxurl, { action : 'store_name_for_this_backup', data : 'Initial Backup' }, function(data) {
+		});
+        }
 	
+        //checking the backup is running 
+        function checkbackup_is_running(){
+            var Sback = jQuery('#stop_backup');
+            var Bback = jQuery('#start_backup');
+            if(Sback.html()=='Stop Backup')
+            {
+                bp_in_progress=true;
+            }
+            else if(Bback.html=='Stop Backup')
+            {
+                bp_in_progress=true;
+            }
+            else
+            {
+                bp_in_progress=false;
+            }
+            
+        }
+        
     jQuery(document).ready(function () {
 		//console.log("hi");
 		/* jQuery(function(){
@@ -986,17 +1056,25 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 				
 				//call the ajax function to perform the backup actions
 				jQuery.post(ajaxurl, { action : 'start_fresh_backup_tc' }, function(data) {
-					started_fresh_backup = true;
+					
 				
-					//calling the progress bar function
-					show_backup_progress_dialog('', 'fresh');
+					
                                         
                                         if(fresh=='yes'){
-                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p style="text-align: center; line-height: 24px;">This is your first backup. We are now copying all your files and db to your Dropbox account. This might take a while. Subsequent backups will be instantaneous since they are incremental. <br>Please be patient and don’t close the window.</p></div>';
+                                            //calling the progress bar function
+                                            show_backup_progress_dialog('', 'fresh');
+                                            started_fresh_backup = true;
+                                            var inicontent='<div style="margin-top: 24px; background: none repeat scroll 0% 0% rgb(255, 255, 255); padding: 0px 7px; box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);"><p style="text-align: center; line-height: 24px;">This is your first backup. This might take any where between 20 minutes to a few hours based on your site\'s size. <br>Subsequent backups will be instantaneous since they are incremental. <br>Please be patient and don’t close the window.</p></div>';
                                             jQuery(".backup_progress_tc").parent().append(inicontent);
+                                            initial_backup_name_store();
+                                        }
+                                        else
+                                        {
+                                            show_backup_progress_dialog('', 'incremental');
+                                            started_fresh_backup = false;
+                                            show_get_name_dialog_tc();
                                         }
 					//call the name storing funciton to give this backup process a name 
-					show_get_name_dialog_tc();
 					backup_end = true;
 				});
 			}
@@ -1017,7 +1095,7 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
 					started_fresh_backup = true;
 				
 					//calling the progress bar function
-					show_backup_progress_dialog('', 'fresh');
+					show_backup_progress_dialog('', 'incremental');
 					
 					//call the name storing funciton to give this backup process a name 
 					show_get_name_dialog_tc();
@@ -1045,8 +1123,8 @@ if($fresh=='yes'&&$initial_setup=='initial_setup')
                     
                  <?php if($freshbackupPopUp){?>
                         freshBackupPopUpShow();
-                <?php }?>
-    });
+                <?php }?>       
+                });
 </script>
 <?php 
 

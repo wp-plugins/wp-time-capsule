@@ -203,9 +203,9 @@ abstract class WPTC_Processed_Base
     }
 	
 	public function get_stored_backup_name($backup_id = null){
-		$this_name = $this->db->get_results("SELECT backup_name FROM {$this->db->prefix}wptc_backup_names WHERE backup_id = '$backup_id'" );
+		$this_name = $this->db->get_results("SELECT this_id,backup_name FROM {$this->db->prefix}wptc_backup_names WHERE backup_id = '$backup_id'" );
 		if(isset($this_name[0])){
-			return $this_name[0]->backup_name;
+			return $this_name[0];
 		}
 		else{
 			return '';
@@ -253,5 +253,5 @@ abstract class WPTC_Processed_Base
             $unknown_files = $this->db->get_results("SELECT DISTINCT file FROM {$this->db->prefix}wptc_processed_files",ARRAY_N);
             return $unknown_files;
         }
-	
+        	
 }

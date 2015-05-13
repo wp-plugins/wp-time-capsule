@@ -348,6 +348,17 @@ padding: 2px 5px 1px;
 border-radius: 5px;
 border: 1px solid transparent; }
 .fc-grid .fc-day-content .backup_content_tc:hover { background-color:#F8F8F8; border-color:#E5E5E5;}
+.fc-grid .fc-day-content .backup_content_tc.bp_in_progress:hover { background: none; border-color: transparent; cursor:default;}
+.fc-grid .fc-day-content .backup_content_tc.bp_in_progress { position: relative;}
+.fc-grid .fc-day-content .backup_content_tc.bp_in_progress:hover::after {
+  content: 'A backup is currently running. Please wait until it finishes to view backups.';
+  position: absolute;
+  background-color: rgba(0,0,0,0.7);
+  color: #fff;
+  width: 220px;
+  z-index: 1;
+  left: -70px;
+  top: -40px;}
 /* event styles */
 	
 .fc-grid .fc-event-time {
@@ -500,7 +511,7 @@ border: 1px solid transparent; }
 	background-color: #f1f1f1;
 	height: auto;
         overflow-x: hidden;
-        overflow-y: auto;
+        overflow-y: hidden;
 	position: relative;
 	font-family: 'open_sansregular' !important;
 }	

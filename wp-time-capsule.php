@@ -4,7 +4,7 @@ Plugin Name: WP Time Capsule
 Plugin URI: http://wptimecapsule.com
 Description: Incremental Backup Plugin - After the initial full backup to Dropbox, back up just the changes periodically.
 Author: Revmakx
-Version: 1.0.0beta1
+Version: 1.0.0beta2
 Author URI: http://www.revmakx.com.
 Tested up to: 4.2
 /************************************************************
@@ -29,8 +29,14 @@ Tested up to: 4.2
  *          along with this program; if not, write to the Free Software
  *          Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA.
 */
+// Make sure we don't expose any info if called directly
+if ( !function_exists( 'add_action' ) ) {
+	echo 'Howdy! I am not of much use without MotherShip Dashboard.';
+	exit;
+}
+
 define('WPTC_TEMP_COOKIE_FILE', str_replace('/', DIRECTORY_SEPARATOR, WP_CONTENT_DIR.'/backups/tempCookie.txt'));
-define('WPTC_VERSION', '1.0.0beta1');
+define('WPTC_VERSION', '1.0.0beta2');
 define('WPTC_DATABASE_VERSION', '2');
 define('EXTENSIONS_DIR', str_replace('/', DIRECTORY_SEPARATOR, plugin_dir_path(__FILE__).'Classes/Extension/'));
 define('CHUNKED_UPLOAD_THREASHOLD', 4194304); //10 MB
@@ -436,6 +442,7 @@ function store_backup_name($backup_name = '', $backup_id = null){
 function execute_tcdropbox_backup()
 {
     $backup_id = getTcCookie('backupID');
+        WPTC_Factory::get('config')->set_option('backup_action_id',$backup_id);
 	//WPTC_Factory::get('logger')->delete_log();
 	WPTC_Factory::get('logger')->log(sprintf(__('Backup started on %s.', 'wptc'), date("l F j, Y", strtotime(current_time('mysql')))),'backup_start',$backup_id);
 	
@@ -970,7 +977,7 @@ add_action( 'wp', 'wptc_setup_schedule' );
 
 add_action( 'load-index.php','admin_notice_on_dashboard'); 
 //i18n language text domain
-load_plugin_textdomain('wptc', false, 'wp-time-capsule/Languages/');
+//load_plugin_textdomain('wptc', false, 'wp-time-capsule/Languages/');
 
 //update hooks
 function register_the_js_events($hook) {
@@ -999,6 +1006,7 @@ if (is_admin()) {
         add_action('wp_ajax_clear_wptc_logs','clear_wptc_logs');
         add_action('wp_ajax_continue_with_wtc','dropbox_auth_check');
         add_action('wp_ajax_subscribe_me','wptc_subscribe_me');
+        add_action('wp_ajax_get_dropbox_authorize_url','get_dropbox_authorize_url');
     if (defined('MULTISITE') && MULTISITE) {
         add_action('network_admin_menu', 'wordpress_time_capsule_admin_menu');
     } else {
@@ -1208,4 +1216,14 @@ if(!($fcount[0]->files > 0)){
 
 function admin_notice_on_dashboard(){
         add_action( 'admin_notices', 'initial_setup_notices' );
+}
+
+function get_dropbox_authorize_url(){
+    $dropbox = WPTC_Factory::get('dropbox');
+    $dropbox->unlink_account()->init();
+    $dauthorize_url=$dropbox->get_authorize_url();
+    $result['authorize_url']=$dauthorize_url.'&oauth_callback='.admin_url().'admin.php?page=wp-time-capsule-monitor&action=initial_setup';
+    echo json_encode($result);
+    die();
+  
 }

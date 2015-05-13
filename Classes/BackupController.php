@@ -65,8 +65,8 @@ class WPTC_BackupController
         $last_percent = 0;
 //        file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----Called------- \n",FILE_APPEND);
         if (file_exists($path)) {
-            $source = realpath($path);
-            
+                        $source = realpath($path);
+                        $backup_action_id = $this->config->get_option('backup_action_id');
 			$Mdir  = new RecursiveDirectoryIterator($source);
 			$Mfile = new RecursiveIteratorIterator($Mdir, RecursiveIteratorIterator::SELF_FIRST,RecursiveIteratorIterator::CATCH_GET_CHILD);
                         $total_files = iterator_count($Mfile);
@@ -165,6 +165,12 @@ class WPTC_BackupController
 					$ignored_files_count += 1;
                     continue;
                 }
+                
+                if (!is_readable($file)){
+                    $this->writeStatusofFile($fid,'S');
+                    $ignored_files_count += 1;
+                    continue;
+                }
 
                 if (is_file($file)) {
 					//if it is our plugin file ; ignore it;
@@ -214,13 +220,20 @@ class WPTC_BackupController
 					//file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n -----uploading this file ------ ".var_export($file,true)."\n",FILE_APPEND);
 					$dropboxOutput = $this->output->out($dropbox_path, $file, $processed_file);
 					//write_in_tcmonitor_console((array)$dropboxOutput, '----dropboxOutput----');
-					if(!empty($dropboxOutput)){
+					if(!empty($dropboxOutput)&&$dropboxOutput!='exist'&&!isset($dropboxOutput['error'])){
 //						file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----file added------- ".$file."\n",FILE_APPEND);
 //						file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----dropboxOutput------- ".var_export((array)$dropboxOutput,true)."\n",FILE_APPEND);
                                                 $this->writeStatusofFile($fid,'P');
 					}
-					else{
-//						file_put_contents(WP_CONTENT_DIR .'/DE_clientPluginSIde.php',"\n ----some error in Drop------- ",FILE_APPEND);
+                                        else if($dropboxOutput=='exist')
+                                        {
+                                                $this->writeStatusofFile($fid,'S');
+                                                continue;
+                                        }
+					else if(isset($dropboxOutput['error'])){
+                                                WPTC_Factory::get('logger')->log($dropboxOutput['message'],'backup_error',$backup_action_id,$dropboxOutput['error']);
+						$this->writeStatusofFile($fid,'E');
+                                                continue;
 					}
                     if ($dropboxOutput) {
 						$thisLoopCOunt++;
@@ -1165,6 +1178,7 @@ class WPTC_BackupController
         $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_backup_names`");
         $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_activity_log`");
         $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_current_process`");
+        $wpdb->query("TRUNCATE TABLE `".$wpdb->prefix."wptc_options`");
         
         $this->config->set_option('in_progress', 0);
         $this->config->set_option('is_running', 0);
@@ -1291,7 +1305,7 @@ class WPTC_BackupController
         $result['lname'] = $current_user->user_lastname;
         $result['cemail'] = $current_user->user_email;
         $result['admin_email'] = get_option('admin_email');
-        $result['idata'] = serialize($reportIssue);
+        $result['idata'] = str_replace("'",'`',serialize($reportIssue));
         return json_encode($result);
     }
     public function WTCGetAnonymousData(){

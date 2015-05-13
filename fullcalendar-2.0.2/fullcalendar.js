@@ -6180,9 +6180,11 @@ function DayEventRenderer() {
 		jQuery(".fc-corner-left").parent(".fc-header-left").removeClass("fc-header-left").addClass("fc-header-right");
 		jQuery('.backup_content_tc').css("height", "19px");
 		jQuery('.backup_content_tc').on('click', function(ev) {
-                    if(!backupclickProgress){
-                        backupclickProgress=true;
-			var thisDayBackups = getThisDayBackups(jQuery(this).attr("backupids"));
+                    if(!jQuery(this).hasClass('bp_in_progress')){
+                        if(!backupclickProgress){
+                            backupclickProgress=true;
+                            var thisDayBackups = getThisDayBackups(jQuery(this).attr("backupids"));
+                        }
                     }
 		}); 
 		
@@ -6324,9 +6326,13 @@ function DayEventRenderer() {
 			var thisObj = jQuery(this);
 			if(thisObj.attr("data-date") == event.start._i)
 			{
+                                var disable_class = '';
+                                if(bp_in_progress==true){
+                                    disable_class = 'bp_in_progress';
+                                }
 				thisObj.addClass('tc-hasBU');
                                 jQuery('div .fc-day-content .backup_content_tc', thisObj).remove();
-                                jQuery('div .fc-day-content', thisObj).append('<div class="backup_content_tc" style="height:19px" backupIDs="'+htmlEscape(event.backupIDs || '')+'" >'+htmlEscape(event.title || '')+'</div>');
+                                jQuery('div .fc-day-content', thisObj).append('<div class="backup_content_tc '+disable_class+'" style="height:19px" backupIDs="'+htmlEscape(event.backupIDs || '')+'" >'+htmlEscape(event.title || '')+'</div>');
 			}
 		});
 		

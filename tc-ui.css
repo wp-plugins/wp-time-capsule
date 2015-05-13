@@ -78,7 +78,7 @@ ul.bu_list_cont li.bu_list .bu_meta .time {
 ul.bu_list_cont li.bu_list .bu_meta .bu_name {
 	float: left;
 	padding: 21px 0;
-	width: 166px;
+	width: 139px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -289,7 +289,8 @@ ul.bu_list_cont li.bu_list .bu_meta .toggle_files.selection_mode_on::after, ul.b
 }
 .changed_files_count {
 	float: right;
-	padding: 21px;
+	padding: 21px 10px;
+        text-align: right;
 }
 .wcard {
 	background-color: #fff;
@@ -325,6 +326,11 @@ ul.bu_list_cont li.bu_list .bu_meta .toggle_files.selection_mode_on::after, ul.b
 	padding: 10px 58px;
 	box-shadow: 0 -3px 0 rgba(0, 0, 0, 0.0);
 }
+.wcard .btn_pri.disabled {background-color: #D7D7D7 !important;box-shadow: 0px 0px;
+text-transform: none;
+letter-spacing: 1px;
+color: rgb(255, 255, 255) !important;}
+.wcard .btn_pri.disabled:hover {padding: 9px 58px 11px; cursor: default;}
 .wcard .btn_sec {
 	background-color: #acacac;
 	color: #fff !important;
@@ -429,6 +435,102 @@ ul.bu_list_cont li.bu_list .bu_meta .toggle_files.selection_mode_on::after, ul.b
 .wcard.backup_name_dialog a.skip:hover {
 	border-color: #444;
 }
+
+.bp_progress_bar_cont{
+    width:100%;
+    height:20px;
+    background:#fff;
+    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.1);
+    position: relative;
+    margin-top: 10px;
+}
+.bp_progress_bar_cont .bp_progress_msg { position:absolute; z-index: 3; padding-left: 5px;}
+.bp_progress_bar_cont::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-image: -moz-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.03) 75%, transparent 75%, transparent);
+    background: -webkit-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.03) 75%, transparent 75%, transparent); 
+    z-index: 0;
+    background-size: 50px 50px;
+    animation: 2s linear 0s normal none infinite running move;
+    -webkit-animation: 2s linear 0s normal none infinite running move;
+    overflow: hidden;
+}
+.bp_progress_bar {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    height: 100%;
+    background-color: #ace393;
+    width:1%;
+    z-index: 1;
+}
+.wcard.backup_progress_tc::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-image: -moz-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.03) 75%, transparent 75%, transparent);
+    background: -webkit-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.03) 75%, transparent 75%, transparent); 
+    z-index: 0;
+    background-size: 50px 50px;
+    animation: 2s linear 0s normal none infinite running move;
+    -webkit-animation: 2s linear 0s normal none infinite running move;
+    overflow: hidden;
+}
+.wcard.progress_reverse::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-image: -moz-linear-gradient(-45deg, rgba(0, 0, 0, 0.03) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.03) 75%, transparent 75%, transparent);
+    z-index: 0;
+    background-size: 50px 50px;
+    animation: 2s linear 0s normal none infinite running reverse;
+    -webkit-animation: 2s linear 0s normal none infinite running reverse;
+    overflow: hidden;
+}
+ @-webkit-keyframes move {
+ 0% {
+ background-position: 0 0;
+}
+ 100% {
+ background-position: 50px 50px;
+}
+}
+ @-moz-keyframes move {
+ 0% {
+ background-position: 0 0;
+}
+ 100% {
+ background-position: 50px 50px;
+}
+}
+@-webkit-keyframes reverse {
+ 0% {
+    background-position: 50px 50px;
+}
+ 100% {
+    background-position: 0 0;
+}
+}
+@-moz-keyframes reverse {
+ 0% {
+    background-position: 50px 50px;
+}
+100% {
+    background-position: 0 0;
+
+}
+}
 .dialog_close {
 	background: url(images/icon_close02.svg);
 	position: absolute;
@@ -449,3 +551,4 @@ margin-bottom: 10px;
 .dbox_quota  span { display: block;
 background-color: #278ab7;
 height: 11px;}
+

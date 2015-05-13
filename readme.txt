@@ -1,4 +1,4 @@
-=== WP Time Capsule ===
+﻿=== WP Time Capsule ===
 
 Contributors: WPTimeCapsule, dark-prince, developerbabu
 
@@ -8,7 +8,7 @@ Requires at least: 3.2
 
 Tested up to: 4.2
 
-Stable tag: 1.0.0beta1
+Stable tag: 1.0.0beta2
 
 
 
@@ -40,11 +40,11 @@ An initial backup of your whole WordPress site is taken once. After that, only t
 **How is it better?**<br>
 BACKUP METHOD<br>
 Traditionally - Backups are compressed and zipped. The Bad: Heavy server resource consumption.<br>
-WPTC - No zipping. Changed files are dropped into your Dropbox. The Good: ***Uses very less server resource*** 
+WPTC - No zipping. Changed files are dropped into your Dropbox. The Good: ***Uses considerably less server resource*** 
 <br><br>
 BACKUP FILE<br>
 Traditionally - Multiple zip files are created every time you backup. The Bad: Precious storage space is wasted.<br>
-WPTC - Backs up incrementally. No multiple copies of files. The Good: ***Uses very less disk space***
+WPTC - Backs up incrementally. No multiple copies of files. The Good: ***Uses far less disk space***
 <br><br>
 RESTORE<br>
 Traditionally - Unzip backup and restore the whole site. The Bad: Consumes time and server resource.<br>

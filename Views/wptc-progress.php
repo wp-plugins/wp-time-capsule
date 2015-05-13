@@ -51,6 +51,10 @@ if (!$config->get_option('in_progress'))
 		}
 		$return_array['backup_progress']['progress_percent'] =  $prog_percent;
 	}
+        else
+        {
+            $return_array['progress_complete'] = true;
+        }
 	echo json_encode($return_array);
 
 exit;

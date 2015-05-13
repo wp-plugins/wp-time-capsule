@@ -466,7 +466,7 @@ function get_all_files_from_dir_recursive($path, $ignore_array=array()) {
 		checkIfNoResponse('startRestore');
 		
 		//calling the progress bar function
-		show_backup_progress_dialog('', 'fresh');
+		show_backup_progress_dialog('', 'incremental');
 	}
 	
 	/*function startRestore(files_to_restore){

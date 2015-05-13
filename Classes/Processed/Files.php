@@ -155,6 +155,18 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 			global $treeRecursiveCount;
 			$treeRecursiveCount = 0;
 			$sub_content = $this->get_tree_div_recursive($explodedTreeArray);
+                          $res_files_count = count($value) - 1;
+                        $filesinBackup = true;
+                        if($res_files_count==0){
+                            $filesinBackup = false;
+                        }
+                        if($filesinBackup)
+                        {
+                            $file_cont = '<div class="item_label">Files</div><ul class="bu_files_list">'.$sub_content.'</ul></div>';
+                        }
+                        else {
+                            $file_cont = '<div class="item_label">Files</div><ul class="bu_files_list" style="display:none">'.$sub_content.'</ul><div style="float: left; width: 600px; border-left: 1px solid #E5E5E5; font-size: 13px; padding: 15px; border-top: 1px solid #E5E5E5;">No files have changed since the last backup</div></div>';
+                        }
 			//<li><div class="folder open"></div><div class="file_path">themes/mystile-child/index.php</div></li>
 			//<li class="sl1"><div class="file_path">themes/mystile-child/index.php</div></li>
 			/* foreach($value as $k => $v)
@@ -162,13 +174,31 @@ class WPTC_Processed_Files extends WPTC_Processed_Base
 				//$stripped_file_name = $this->remove_abs_path($v->file);
 				$sub_content .= '<li class="single_backup_content_body checkbox_click"><div class="file_path" id="this_name" file_size='.$v->uploaded_file_size.' rev_id='.$v->revision_id.' mod_time='.$v->mtime_during_upload.'>'.$v->file.'</div></li>';
 			} */
-			$res_files_count = count($value) - 1;
-			$this_plural = '';
-			if($res_files_count > 1)
-			{
-				$this_plural = 's';
-			}
-			$backup_dialog_html .= '<li class="single_group_backup_content bu_list" this_backup_id="'.$key.'"><div class="single_backup_head bu_meta"><div class="toggle_files"></div><div class="time">'.date('g:i a', $key).'</div><div class="bu_name">'.$this->get_stored_backup_name($key).'</div><a class="this_restore disabled btn" style="display:none">Restore Selected</a><div class="changed_files_count" style="display:none">'.$res_files_count.' file'.$this_plural.' changed</div><a class="btn this_restore_point">RESTORE SITE TO THIS POINT</a></div><div class="clear"></div><div class="bu_files_list_cont"><div class="item_label">Database</div><ul class="bu_files_list "><li class="restore_the_db sub_tree_class"><div class="file_path">Restore the database</div></li></ul><div class="clear"></div><div class="item_label">Files</div><ul class="bu_files_list">'.$sub_content.'</ul></div><div class="clear"></div></li>';
+                    
+                        
+                        
+                        $changed_file_count="";
+			if($filesinBackup){
+                            $this_plural = '';
+                            if($res_files_count > 1)
+                            {
+                                    $this_plural = 's';
+                            }
+                        //Getting backup Name 
+                        $backup_name = $this->get_stored_backup_name($key);
+                        if($backup_name->this_id == 1)
+                        {
+                            $changed_file_count = '<div class="changed_files_count" style="display:none">'.$res_files_count.' file'.$this_plural.' backed up</div>';
+                        }
+                        else
+                        {
+                            $changed_file_count = '<div class="changed_files_count" style="display:none">'.$res_files_count.' file'.$this_plural.' changed</div>';
+                        }
+                            
+                            
+                        }
+                        
+			$backup_dialog_html .= '<li class="single_group_backup_content bu_list" this_backup_id="'.$key.'"><div class="single_backup_head bu_meta"><div class="toggle_files"></div><div class="time">'.date('g:i a', $key).'</div><div class="bu_name">'.$backup_name->backup_name.'</div><a class="this_restore disabled btn" style="display:none">Restore Selected</a>'.$changed_file_count.'<a class="btn this_restore_point">RESTORE SITE TO THIS POINT</a></div><div class="clear"></div><div class="bu_files_list_cont"><div class="item_label">Database</div><ul class="bu_files_list "><li class="restore_the_db sub_tree_class"><div class="file_path">Restore the database</div></li></ul><div class="clear"></div>'.$file_cont.'<div class="clear"></div></li>';
 			$this_day = $key;
 		}
 		return '<div class="dialog_cont"><span class="dialog_close"></span><div class="pu_title">Backups Taken on '.date('jS F', $this_day).'</div><ul class="bu_list_cont">'.$backup_dialog_html.'</ul></div>';

@@ -1,4 +1,5 @@
 backupclickProgress=false;
+started_fresh_backup=false;
 jQuery(document).ready(function ($) {
 	get_and_store_before_backup_var();
 	
@@ -210,7 +211,14 @@ jQuery(document).ready(function ($) {
 		jQuery(".thickbox").click();
                 styling_thickbox_tc('change_account');
         });
-	
+	jQuery('#connect_to_dropbox').live("click",function(){
+            
+            jQuery(this).attr('disabled','disabled').addClass('disabled').val('Redirecting...');
+            jQuery.post(ajaxurl, { action : 'get_dropbox_authorize_url' }, function(data) {
+                var obj = jQuery.parseJSON(data);
+                window.location=obj.authorize_url; 
+            });
+        });
 });
 
 function get_and_store_before_backup_var(){
@@ -317,15 +325,22 @@ function show_is_backup_dialog_box_tc(obj, direct_backup){
 function show_backup_progress_dialog(obj, type){
 	//this function updates the progress bar in the dialog box ; during backup
 	var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 35px 35px 35px; width: 450px;"><span class="dialog_close" style="display:none"></span><div class="wcard hii backup_progress_tc" style="height:60px; padding:0; margin-top:35px; display:inline-block;"><div class="progress_bar" style="width:0.0002%;"></div> <div class="progress_cont">Backing up files before updating...</div></div></div>';
-	
+        
 	if(type == 'fresh')
 	{
 		jQuery("#dialog_content_id").html(dialog_content);  //since it is the first call we are generating thickbox like this
 		jQuery(".thickbox").click();
-		jQuery(".progress_cont").text("Backing up your files...");
+		jQuery(".progress_cont").text("Initiating the backup...");
 		styling_thickbox_tc('progress');
 		start_backup_before_update = true;
 	}
+        else if(type == 'incremental'){
+            jQuery("#dialog_content_id").html(dialog_content);  //since it is the first call we are generating thickbox like this
+            jQuery(".thickbox").click();
+            jQuery(".progress_cont").text("Initiating the backup...");
+            styling_thickbox_tc('progress');
+            start_backup_before_update = true;
+        }
 	else
 	{
 		jQuery("#TB_ajaxContent").html(dialog_content);
@@ -402,6 +417,7 @@ function reload_backup_tc() {
 				var progress_percent = 1;
                                 var totalfiles=0;
                                 var processedfiles=0;
+                                var processed = 0;
 				if(typeof data['backup_progress'] != 'undefined'){
 					jQuery.each(data, function(k, v){
 						this_text_processed_files = v['processed_files'];
@@ -411,13 +427,40 @@ function reload_backup_tc() {
                                                 if (v['processed_totcount'] != null && v['processed_totcount'] !== undefined) {
                                                     processedfiles = v['processed_totcount'];
                                                 }
+                                                if (v['processed_files'] != null && v['processed_files'] !== undefined) {
+                                                    processed = v['processed_files'];
+                                                }
 						progress_percent = v['progress_percent'];
 					});
 				}
 				if(progress_percent * 100 >= 100){
 					progress_percent = 1;
 				}
-				jQuery('.wcard.backup_progress_tc .progress_cont').html('Backing up your files... [ '+processedfiles+' / '+totalfiles+' ]');
+                                if(started_fresh_backup)
+                                {
+                                    if(processedfiles > 0){
+                                        jQuery('.wcard.backup_progress_tc .progress_cont').html('Copying site to your Dropbox... '+processedfiles+' copied of '+totalfiles+' files.');
+                                    }
+                                    else
+                                    {
+                                        jQuery('.wcard.backup_progress_tc .progress_cont').html('Backing up the database...');
+                                    }
+                                }
+                                else
+                                {
+                                    if(processed > 0){
+                                        var plural  = 'files';
+                                        if(processed==1)
+                                        {
+                                            plural = 'file';
+                                        }
+                                        jQuery('.wcard.backup_progress_tc .progress_cont').html('Checking for changes... '+processed+' changed '+plural+' backed up.');
+                                    }
+                                    else
+                                    {
+                                        jQuery('.wcard.backup_progress_tc .progress_cont').html('Backing up the database...');
+                                    }
+                                }
 				jQuery('.wcard.backup_progress_tc .progress_bar').attr("style", "width:" + progress_percent * 100 + "%");
 				
 				//show laoding div in calendar box
@@ -649,14 +692,16 @@ function reload_monitor_page()
 //Function for open dialog box for initial setup - backup process
 function freshBackupPopUpShow()
 {
-    
+    var StartBackup = jQuery('#start_backup').html();
+    var StopBackup = jQuery('#stop_backup').html();
+    if(StartBackup!="Stop Backup" && StopBackup != "Stop Backup"){
       var dialog_content = '<div class="this_modal_div" style="background-color: #f1f1f1;font-family: \'open_sansregular\' !important;color: #444;padding: 0px 34px 26px 34px;"><span class="dialog_close"></span><div class="pu_title">Your first backup</div><div class="wcard clearfix" style="width:480px"><div class="l1">Do you want to backup your site now?</div><a style="margin-left: 29px;" class="btn_pri" onclick="initialSetupBackup()">Yes. Backup now.</a><a class="btn_sec" id="no_change" onclick="tb_remove()">No. I will do it later.</a></div></div>';
     setTimeout(function() {
         jQuery("#dialog_content_id").html(dialog_content);
         jQuery(".thickbox").click();
         styling_thickbox_tc('initial_backup');
     }, 3000);
-
+    }
 }
 
 function initialSetupBackup(){
